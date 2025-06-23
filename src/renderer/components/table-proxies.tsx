@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Input, Table } from 'antd'
 
 import { useGetProxies } from '~/api/use-get-proxies'
 import { TagProxyStatus } from '~/components/tag-proxy-status'
@@ -14,7 +14,12 @@ export function TableProxies() {
         { dataIndex: 'host', key: 'host', title: 'Host' },
         { dataIndex: 'port', key: 'port', title: 'Port' },
         { dataIndex: 'username', key: 'username', title: 'Username' },
-        { dataIndex: 'password', key: 'password', title: 'Password' },
+        {
+          dataIndex: 'password',
+          key: 'password',
+          render: (password) => <Input.Password readOnly value={password} variant="borderless" />,
+          title: 'Password'
+        },
         {
           dataIndex: 'status',
           key: 'status',
