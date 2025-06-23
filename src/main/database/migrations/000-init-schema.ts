@@ -15,6 +15,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('username', 'text', (col) => col.notNull())
     .addColumn('password', 'text', (col) => col.notNull())
     .addColumn('status', 'text', (col) => col.notNull().defaultTo('not-verified'))
+    .addColumn('note', 'text')
     .addUniqueConstraint('unique_proxy', ['host', 'port'])
     .execute()
 }

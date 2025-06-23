@@ -1,6 +1,6 @@
 /* eslint-disable perfectionist/sort-object-types */
 import { resetDatabase } from '#/database'
-import { addProxies, getProxies } from '#/handlers/proxies.handler'
+import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
@@ -16,6 +16,8 @@ declare global {
 
       addProxies: typeof addProxies
       getProxies: typeof getProxies
+      verifyProxies: typeof verifyProxies
+      deleteProxies: typeof deleteProxies
     }
     electron: ElectronAPI & {
       onFinishCheckProxy: (callback: () => void) => void

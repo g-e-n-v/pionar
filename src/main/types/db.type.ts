@@ -9,6 +9,7 @@ export type BaseEntity<T = Record<string, unknown>> = T & {
 
 export type Proxy = BaseEntity<{
   host: string
+  note: null | string
   password: string
   port: number
   status: 'dead' | 'invalid-format' | 'live' | 'not-verified' | null

@@ -13,7 +13,9 @@ const api = {
   deleteTag: (id: number) => ipcRenderer.invoke('delete-tag', id),
 
   addProxies: (proxies: ProxyInsert[]) => ipcRenderer.invoke('add-proxies', proxies),
-  getProxies: () => ipcRenderer.invoke('get-proxies')
+  getProxies: () => ipcRenderer.invoke('get-proxies'),
+  verifyProxies: (url: string) => ipcRenderer.invoke('verify-proxies', url),
+  deleteProxies: () => ipcRenderer.invoke('delete-proxies')
 }
 
 const event = {
