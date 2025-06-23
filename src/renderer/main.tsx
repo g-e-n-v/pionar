@@ -1,17 +1,20 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { App, ConfigProvider, Divider, Layout, Menu, MenuProps, Spin } from 'antd'
 import { CloudConnection, Drop, Refresh, Tag } from 'iconsax-reactjs'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { useResetDatabase } from '~/api/use-reset-database'
-import '~/global.css'
+import { antTheme } from '~/configs/ant.config'
+import { queryClient } from '~/configs/tanstack-query.config'
 import { TagPage } from '~/pages/tag.page'
+import '~/global.css'
+import '@ant-design/v5-patch-for-react-19'
 
 const { Content, Sider } = Layout
 
 export function ElectronApp() {
-  const { message } = App.useApp()
+  const { notification } = App.useApp()
 
   const resetDatabase = useResetDatabase()
 
@@ -20,7 +23,8 @@ export function ElectronApp() {
   const handleMenuItemClick: MenuProps['onClick'] = async ({ key }) => {
     if (key === 'reset-database') {
       await resetDatabase.mutateAsync()
-      message.success('Database reset successfully')
+      await queryClient.invalidateQueries()
+      notification.success({ message: 'Database reset successfully' })
       return
     }
 
@@ -74,23 +78,10 @@ export function ElectronApp() {
   )
 }
 
-const queryClient = new QueryClient()
-
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
-    <ConfigProvider
-      theme={{
-        components: {
-          Tag: {
-            borderRadiusSM: 999
-          }
-        },
-        token: {
-          fontFamily: `'Outfit', sans-serif`
-        }
-      }}
-    >
-      <App>
+    <ConfigProvider theme={antTheme}>
+      <App notification={{ showProgress: true }}>
         <ElectronApp />
       </App>
     </ConfigProvider>

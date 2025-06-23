@@ -1,14 +1,11 @@
-import { useGetTags } from '~/api/use-get-tags'
+import { FormCreateTag } from '~/components/form-create-tag'
 import { TableTags } from '~/components/table-tags'
 
 export function TagPage() {
-  const getTags = useGetTags()
-
-  console.log(getTags.data)
-
   return (
-    <>
+    <div className="flex flex-col gap-4">
+      <FormCreateTag />
       <TableTags />
-    </>
+    </div>
   )
 }

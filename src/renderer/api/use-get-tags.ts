@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-const genGetTagsKey = () => ['get-tags']
+export const genGetTagsKey = () => ['get-tags']
 
 export function useGetTags() {
   return useQuery({

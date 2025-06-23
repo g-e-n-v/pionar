@@ -1,4 +1,4 @@
-import { Generated, Insertable, Updateable } from 'kysely'
+import { Generated, Insertable, Selectable, Updateable } from 'kysely'
 
 export type BaseEntity<T = Record<string, unknown>> = T & {
   createdAt: Generated<Date>
@@ -15,6 +15,7 @@ export type Proxy = BaseEntity<{
   username: string
 }>
 export type ProxyInsert = Insertable<Proxy>
+export type ProxySelect = Selectable<Proxy>
 export type ProxyUpdate = Updateable<Proxy>
 
 export type Tag = BaseEntity<{
@@ -22,6 +23,7 @@ export type Tag = BaseEntity<{
   text: string
 }>
 export type TagInsert = Insertable<Tag>
+export type TagSelect = Selectable<Tag>
 export type TagUpdate = Updateable<Tag>
 
 // eslint-disable-next-line perfectionist/sort-modules

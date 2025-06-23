@@ -1,10 +1,15 @@
+/* eslint-disable perfectionist/sort-objects */
+import { TagInsert, TagUpdate } from '#/types/db.type'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge } from 'electron'
 import { ipcRenderer } from 'electron/renderer'
 
 const api = {
+  resetDatabase: () => ipcRenderer.invoke('reset-database'),
+
   getTags: () => ipcRenderer.invoke('get-tags'),
-  resetDatabase: () => ipcRenderer.invoke('reset-database')
+  createTag: (tag: TagInsert) => ipcRenderer.invoke('create-tag', tag),
+  updateTag: (id: number, tag: TagUpdate) => ipcRenderer.invoke('update-tag', id, tag)
 }
 
 if (process.contextIsolated) {
