@@ -3,6 +3,8 @@ import { CloudPlus } from 'iconsax-reactjs'
 import { useState } from 'react'
 
 import { useAddProxies } from '~/api/use-add-proxies'
+import { genGetProxiesKey } from '~/api/use-get-proxies'
+import { queryClient } from '~/configs/tanstack-query.config'
 
 export function ButtonAddProxies() {
   const { notification } = App.useApp()
@@ -25,6 +27,7 @@ export function ButtonAddProxies() {
     })
 
     await addProxies.mutateAsync(proxies ?? [])
+    queryClient.invalidateQueries({ queryKey: genGetProxiesKey() })
     notification.success({ message: 'Add proxies successfully' })
     setInputValue('')
     setOpen(false)

@@ -24,7 +24,9 @@ export function TableProxies() {
       ]}
       dataSource={getProxies.data}
       loading={getProxies.isLoading}
+      pagination={{ className: 'px-4', defaultPageSize: 50 }}
       rowKey="id"
+      scroll={{ y: 'calc(100vh - 220px)' }}
     />
   )
 }
