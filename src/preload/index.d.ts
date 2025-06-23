@@ -1,14 +1,19 @@
+/* eslint-disable perfectionist/sort-object-types */
 import { resetDatabase } from '#/database'
-import { createTag, getTags, updateTag } from '#/handlers/tags.handler'
+import { addProxies } from '#/handlers/proxies.handler'
+import { addTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
   interface Window {
     api: {
-      createTag: typeof createTag
-      getTags: typeof getTags
       resetDatabase: typeof resetDatabase
+
+      addTag: typeof addTag
+      getTags: typeof getTags
       updateTag: typeof updateTag
+
+      addProxies: typeof addProxies
     }
     electron: ElectronAPI
   }

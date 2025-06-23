@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
-export function useCreateTag() {
+export function useAddTag() {
   return useMutation({
-    mutationFn: window.api.createTag
+    mutationFn: window.api.addTag
   })
 }

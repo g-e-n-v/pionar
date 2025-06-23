@@ -1,28 +1,28 @@
 import { App, Button, ColorPicker, Form, Input, Tag } from 'antd'
 import { AggregationColor } from 'antd/es/color-picker/color'
 
-import { useCreateTag } from '~/api/use-create-tags'
+import { useAddTag } from '~/api/use-add-tags'
 import { genGetTagsKey } from '~/api/use-get-tags'
 import { queryClient } from '~/configs/tanstack-query.config'
 import { PRESET_COLORS } from '~/constants/colors.constant'
 import { required } from '~/utils/form-rule.util'
 
-type FormCreateTagValues = {
+type FormAddTagValues = {
   color?: AggregationColor
   text: string
 }
 
-export function FormCreateTag() {
+export function FormAddTag() {
   const { notification } = App.useApp()
 
-  const [form] = Form.useForm<FormCreateTagValues>()
+  const [form] = Form.useForm<FormAddTagValues>()
   const text = Form.useWatch('text', form)
   const color = Form.useWatch('color', form)
 
-  const createTag = useCreateTag()
+  const addTag = useAddTag()
 
   const handleAddTag = async () => {
-    await createTag.mutateAsync({ color: color?.toHexString(), text })
+    await addTag.mutateAsync({ color: color?.toHexString(), text })
     await queryClient.invalidateQueries({ queryKey: genGetTagsKey() })
     form.resetFields()
     notification.success({ message: 'Create tag success' })

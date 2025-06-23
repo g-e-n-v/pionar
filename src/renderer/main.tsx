@@ -8,7 +8,9 @@ import { useResetDatabase } from '~/api/use-reset-database'
 import { antTheme } from '~/configs/ant.config'
 import { queryClient } from '~/configs/tanstack-query.config'
 import { FeeWalletsPage } from '~/pages/fee-wallets.page'
+import { ProxyPage } from '~/pages/proxy.page'
 import '~/global.css'
+
 import '@ant-design/v5-patch-for-react-19'
 
 import { TagPage } from '~/pages/tag.page'
@@ -20,7 +22,7 @@ export function ElectronApp() {
 
   const resetDatabase = useResetDatabase()
 
-  const [selectedKey, setSelectedKey] = useState('tag')
+  const [selectedKey, setSelectedKey] = useState('proxy')
 
   const handleMenuItemClick: MenuProps['onClick'] = async ({ key }) => {
     if (key === 'reset-database') {
@@ -47,6 +49,11 @@ export function ElectronApp() {
         <Menu
           items={[
             {
+              icon: <Drop size={16} variant="Bulk" />,
+              key: 'fee-wallets',
+              label: 'Fee Wallets'
+            },
+            {
               icon: <CloudConnection size={16} variant="Bulk" />,
               key: 'proxy',
               label: 'Proxy'
@@ -55,11 +62,6 @@ export function ElectronApp() {
               icon: <Tag size={16} variant="Bulk" />,
               key: 'tag',
               label: 'Tags'
-            },
-            {
-              icon: <Drop size={16} variant="Bulk" />,
-              key: 'fee-wallets',
-              label: 'Fee Wallets'
             },
             {
               label: <Divider className="my-0" />,
@@ -85,6 +87,7 @@ export function ElectronApp() {
         <Content className="p-4">
           {selectedKey === 'tag' && <TagPage />}
           {selectedKey === 'fee-wallets' && <FeeWalletsPage />}
+          {selectedKey === 'proxy' && <ProxyPage />}
         </Content>
       </Layout>
     </Layout>

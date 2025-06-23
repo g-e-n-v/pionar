@@ -1,7 +1,7 @@
 import { db } from '#/database'
 import { TagInsert, TagUpdate } from '#/types/db.type'
 
-export async function createTag(tag: TagInsert) {
+export async function addTag(tag: TagInsert) {
   return db.insertInto('tag').values(tag).execute()
 }
 

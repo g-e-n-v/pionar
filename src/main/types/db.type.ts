@@ -11,7 +11,7 @@ export type Proxy = BaseEntity<{
   host: string
   password: string
   port: number
-  status: 'dead' | 'live' | 'no-verified'
+  status: 'dead' | 'invalid-format' | 'live' | 'not-verified' | null
   username: string
 }>
 export type ProxyInsert = Insertable<Proxy>
