@@ -16,6 +16,8 @@ declare global {
       addProxies: typeof addProxies
       getProxies: typeof getProxies
     }
-    electron: ElectronAPI
+    electron: ElectronAPI & {
+      onFinishCheckProxy: (callback: () => void) => void
+    }
   }
 }

@@ -15,10 +15,14 @@ const api = {
   getProxies: () => ipcRenderer.invoke('get-proxies')
 }
 
+const event = {
+  onFinishCheckProxy: (callback: () => void) => ipcRenderer.on('check-proxy-finish', callback)
+}
+
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('electron', Object.assign(electronAPI, event))
   } catch (error) {
     console.error(error)
   }

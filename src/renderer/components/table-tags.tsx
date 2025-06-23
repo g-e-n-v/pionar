@@ -17,7 +17,7 @@ export function TableTags() {
         {
           dataIndex: 'color',
           key: 'tag',
-          render: (color) => <ColorPicker defaultValue={color} showText />,
+          render: (color) => <ColorPicker defaultValue={color} open={false} showText />,
           title: 'Color',
           width: 140
         },
