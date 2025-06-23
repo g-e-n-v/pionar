@@ -1,6 +1,7 @@
 import { ColorPicker, Table, Tag } from 'antd'
 
 import { useGetTags } from '~/api/use-get-tags'
+import { ButtonDeleteTag } from '~/components/button-delete-tag'
 
 export function TableTags() {
   const getTags = useGetTags()
@@ -29,7 +30,18 @@ export function TableTags() {
         {
           key: 'preview',
           render: (_, { color, text }) => <Tag color={color ?? undefined}>{text}</Tag>,
-          title: 'Preview'
+          title: 'Preview',
+          width: 140
+        },
+        {
+          key: 'actions',
+          render: (_, tag) => (
+            <div>
+              <ButtonDeleteTag tagId={tag.id} />
+            </div>
+          ),
+          title: 'Actions',
+          width: 140
         }
       ]}
       dataSource={getTags.data}

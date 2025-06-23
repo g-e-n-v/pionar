@@ -10,7 +10,7 @@ export function TableProxies() {
     <Table
       className="shadow rounded-lg overflow-hidden bg-white"
       columns={[
-        { dataIndex: 'id', key: 'id', title: '#' },
+        { dataIndex: 'id', key: 'id', title: '#', width: 60 },
         { dataIndex: 'host', key: 'host', title: 'Host' },
         { dataIndex: 'port', key: 'port', title: 'Port' },
         { dataIndex: 'username', key: 'username', title: 'Username' },

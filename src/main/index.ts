@@ -1,36 +1,8 @@
 import { initializeDatabase } from '#/database'
 import { registerIpcHandlers } from '#/handlers'
-import { is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, shell } from 'electron'
-import { join } from 'path'
-
-function createWindow(): void {
-  const mainWindow = new BrowserWindow({
-    autoHideMenuBar: true,
-    show: false,
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-    mainWindow.maximize()
-    mainWindow.webContents.openDevTools()
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
-}
+import { createWindow } from '#/services/window.service'
+import { optimizer } from '@electron-toolkit/utils'
+import { app } from 'electron'
 
 app.whenReady().then(async () => {
   app.on('browser-window-created', (_, window) => {
@@ -41,10 +13,6 @@ app.whenReady().then(async () => {
   registerIpcHandlers()
 
   await initializeDatabase()
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
 })
 
 app.on('window-all-closed', () => {

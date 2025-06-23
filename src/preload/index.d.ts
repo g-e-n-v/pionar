@@ -1,7 +1,7 @@
 /* eslint-disable perfectionist/sort-object-types */
 import { resetDatabase } from '#/database'
 import { addProxies, getProxies } from '#/handlers/proxies.handler'
-import { addTag, getTags, updateTag } from '#/handlers/tags.handler'
+import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
@@ -12,6 +12,7 @@ declare global {
       addTag: typeof addTag
       getTags: typeof getTags
       updateTag: typeof updateTag
+      deleteTag: typeof deleteTag
 
       addProxies: typeof addProxies
       getProxies: typeof getProxies

@@ -10,6 +10,7 @@ const api = {
   getTags: () => ipcRenderer.invoke('get-tags'),
   addTag: (tag: TagInsert) => ipcRenderer.invoke('add-tag', tag),
   updateTag: (id: number, tag: TagUpdate) => ipcRenderer.invoke('update-tag', id, tag),
+  deleteTag: (id: number) => ipcRenderer.invoke('delete-tag', id),
 
   addProxies: (proxies: ProxyInsert[]) => ipcRenderer.invoke('add-proxies', proxies),
   getProxies: () => ipcRenderer.invoke('get-proxies')
