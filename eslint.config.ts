@@ -27,6 +27,7 @@ export default tslint.config(
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       ...pluginReactRefresh.configs.vite.rules,
+      '@typescript-eslint/explicit-function-return-type': 'off',
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off'
     }

@@ -1,6 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import '~/global.css'
+
 export function App() {
   return (
     <div>
