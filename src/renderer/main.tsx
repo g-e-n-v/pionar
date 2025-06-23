@@ -7,14 +7,16 @@ import { createRoot } from 'react-dom/client'
 import { useResetDatabase } from '~/api/use-reset-database'
 import { antTheme } from '~/configs/ant.config'
 import { queryClient } from '~/configs/tanstack-query.config'
-import { TagPage } from '~/pages/tag.page'
+import { FeeWalletsPage } from '~/pages/fee-wallets.page'
 import '~/global.css'
 import '@ant-design/v5-patch-for-react-19'
+
+import { TagPage } from '~/pages/tag.page'
 
 const { Content, Sider } = Layout
 
 export function ElectronApp() {
-  const { notification } = App.useApp()
+  const { modal, notification } = App.useApp()
 
   const resetDatabase = useResetDatabase()
 
@@ -22,9 +24,17 @@ export function ElectronApp() {
 
   const handleMenuItemClick: MenuProps['onClick'] = async ({ key }) => {
     if (key === 'reset-database') {
-      await resetDatabase.mutateAsync()
-      await queryClient.invalidateQueries()
-      notification.success({ message: 'Database reset successfully' })
+      const confirmModal = modal.confirm({
+        content: 'Are you sure you want to reset the database? This will delete all data.',
+        onCancel: () => confirmModal.destroy(),
+        onOk: async () => {
+          await resetDatabase.mutateAsync()
+          await queryClient.invalidateQueries()
+          notification.success({ message: 'Database reset successfully' })
+        },
+        title: 'Reset database'
+      })
+
       return
     }
 
@@ -48,8 +58,8 @@ export function ElectronApp() {
             },
             {
               icon: <Drop size={16} variant="Bulk" />,
-              key: 'fee-wallet',
-              label: 'Fee Wallet'
+              key: 'fee-wallets',
+              label: 'Fee Wallets'
             },
             {
               label: <Divider className="my-0" />,
@@ -72,7 +82,10 @@ export function ElectronApp() {
         />
       </Sider>
       <Layout>
-        <Content className="p-4">{selectedKey === 'tag' && <TagPage />}</Content>
+        <Content className="p-4">
+          {selectedKey === 'tag' && <TagPage />}
+          {selectedKey === 'fee-wallets' && <FeeWalletsPage />}
+        </Content>
       </Layout>
     </Layout>
   )
