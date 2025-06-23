@@ -7,5 +7,6 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "cSpell.words": ["iconsax", "Insertable", "Kysely", "reactjs", "Sider", "Updateable"]
 }

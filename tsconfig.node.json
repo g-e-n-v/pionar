@@ -8,7 +8,7 @@
     "types": ["electron-vite/node"],
     "baseUrl": ".",
     "paths": {
-      "$/*": ["src/main/*"],
+      "#/*": ["src/main/*"],
     }
   }
 }
