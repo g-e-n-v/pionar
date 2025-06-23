@@ -11,7 +11,8 @@ const api = {
   addTag: (tag: TagInsert) => ipcRenderer.invoke('add-tag', tag),
   updateTag: (id: number, tag: TagUpdate) => ipcRenderer.invoke('update-tag', id, tag),
 
-  addProxies: (proxies: ProxyInsert[]) => ipcRenderer.invoke('add-proxies', proxies)
+  addProxies: (proxies: ProxyInsert[]) => ipcRenderer.invoke('add-proxies', proxies),
+  getProxies: () => ipcRenderer.invoke('get-proxies')
 }
 
 if (process.contextIsolated) {
