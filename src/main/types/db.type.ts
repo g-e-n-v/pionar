@@ -27,4 +27,5 @@ export type TagUpdate = Updateable<Tag>
 // eslint-disable-next-line perfectionist/sort-modules
 export type DatabaseTables = {
   proxy: Proxy
+  tag: Tag
 }

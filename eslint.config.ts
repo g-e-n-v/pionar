@@ -28,6 +28,28 @@ export default tslint.config(
       ...pluginReactHooks.configs.recommended.rules,
       ...pluginReactRefresh.configs.vite.rules,
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          varsIgnorePattern: '^_'
+        }
+      ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['../*'], message: 'Please use absolute import instead relative import.' }
+          ]
+        }
+      ],
+      'prefer-template': 'error',
+      'react/function-component-definition': ['error', { namedComponents: 'function-declaration' }],
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off'
     }

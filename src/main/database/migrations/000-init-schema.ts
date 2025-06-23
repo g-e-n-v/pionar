@@ -6,7 +6,7 @@ import { Kysely, sql } from 'kysely'
 async function up(db: Kysely<DatabaseTables>) {
   await createTableWithBaseColumns(db, 'tag')
     .addColumn('text', 'text', (col) => col.notNull())
-    .addColumn('color', 'text', (col) => col.defaultTo(null))
+    .addColumn('color', 'text', (col) => col.defaultTo('#6b7280'))
     .execute()
 
   await createTableWithBaseColumns(db, 'proxy')
@@ -20,6 +20,7 @@ async function up(db: Kysely<DatabaseTables>) {
 
 async function down(db: Kysely<DatabaseTables>) {
   await db.schema.dropTable('proxy').ifExists().execute()
+  await db.schema.dropTable('tag').ifExists().execute()
 }
 
 export const migration_000_init_schema = { down, up }

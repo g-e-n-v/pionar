@@ -1,7 +1,11 @@
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge } from 'electron'
+import { ipcRenderer } from 'electron/renderer'
 
-const api = {}
+const api = {
+  getTags: () => ipcRenderer.invoke('get-tags'),
+  resetDatabase: () => ipcRenderer.invoke('reset-database')
+}
 
 if (process.contextIsolated) {
   try {

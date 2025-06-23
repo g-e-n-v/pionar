@@ -1,3 +1,5 @@
+import { initializeDatabase } from '#/database'
+import { registerIpcHandlers } from '#/handlers'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'path'
@@ -30,12 +32,15 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
   createWindow()
+  registerIpcHandlers()
+
+  await initializeDatabase()
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
