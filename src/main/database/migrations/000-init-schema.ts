@@ -18,9 +18,25 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('note', 'text')
     .addUniqueConstraint('unique_proxy', ['host', 'port'])
     .execute()
+
+  await createTableWithBaseColumns(db, 'wallet')
+    .addColumn('mnemonic', 'text', (col) => col.notNull())
+    .addColumn('privateKey', 'text', (col) => col.notNull())
+    .addColumn('publicKey', 'text', (col) => col.notNull())
+    .addColumn('subentryCount', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('numSponsoring', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('numSponsored', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('nativeBalance', 'integer', (col) => col.notNull().defaultTo(0))
+    .execute()
+
+  await createTableWithBaseColumns(db, 'junction_wallet_tag')
+    .addColumn('tagId', 'integer', (col) => col.references('tag.id').onDelete('cascade'))
+    .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
+    .execute()
 }
 
 async function down(db: Kysely<DatabaseTables>) {
+  await db.schema.dropTable('junction_wallet_tag').ifExists().execute()
   await db.schema.dropTable('proxy').ifExists().execute()
   await db.schema.dropTable('tag').ifExists().execute()
 }

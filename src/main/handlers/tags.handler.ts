@@ -10,7 +10,6 @@ export async function deleteTag(id: number) {
 }
 
 export async function getTags() {
-  console.log('here')
   return db.selectFrom('tag').select(['id', 'color', 'text']).execute()
 }
 
