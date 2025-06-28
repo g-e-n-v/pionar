@@ -1,10 +1,18 @@
 import { Input, Table } from 'antd'
+import { useEffect } from 'react'
 
 import { useGetProxies } from '~/api/use-get-proxies'
 import { TagProxyStatus } from '~/components/tag-proxy-status'
 
 export function TableProxies() {
   const getProxies = useGetProxies()
+
+  useEffect(() => {
+    window.electron.onFinishCheckProxy(() => {
+      console.log('onFinishCheckProxy')
+      getProxies.refetch()
+    })
+  }, [getProxies])
 
   return (
     <Table

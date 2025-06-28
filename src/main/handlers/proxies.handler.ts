@@ -1,4 +1,5 @@
 import { db } from '#/database'
+import { createPromiseQueue } from '#/services/promise-queue.service'
 import { getWindow } from '#/services/window.service'
 import { ProxyInsert, ProxyUpdate } from '#/types/db.type'
 import axios from 'axios'
@@ -26,13 +27,14 @@ export async function updateProxy(id: number, proxy: ProxyUpdate) {
 
 export async function verifyProxies(url: string) {
   const proxies = await getProxies()
+  const queue = createPromiseQueue({ concurrency: 300 })
 
-  await Promise.all(
-    proxies.map(async ({ host, id, password, port, username }) => {
-      const proxyUrl = `http://${username}:${password}@${host}:${port}`
-      const agent = new HttpsProxyAgent(proxyUrl)
+  const promiseFunctions = proxies.map(({ host, id, password, port, username }) => {
+    const proxyUrl = `http://${username}:${password}@${host}:${port}`
+    const agent = new HttpsProxyAgent(proxyUrl)
 
-      await axios
+    return () =>
+      axios
         .get(url, { httpAgent: agent, httpsAgent: agent })
         .then(() => updateProxy(id, { status: 'live' }))
         .catch(async (error) => {
@@ -50,6 +52,7 @@ export async function verifyProxies(url: string) {
         .finally(() => {
           getWindow()?.webContents.send('check-proxy-finish')
         })
-    })
-  )
+  })
+
+  queue.addAll(promiseFunctions)
 }
