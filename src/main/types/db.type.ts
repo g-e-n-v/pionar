@@ -12,7 +12,7 @@ export type Proxy = BaseEntity<{
   note: null | string
   password: string
   port: number
-  status: 'active' | 'inactive' | 'processing' | null
+  status: 'active' | 'inactive' | 'processing'
   username: string
 }>
 export type ProxyInsert = Insertable<Proxy>

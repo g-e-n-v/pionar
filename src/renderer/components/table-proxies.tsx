@@ -1,10 +1,13 @@
 import { Input, Table } from 'antd'
+import { groupBy } from 'lodash-es'
 
 import { useGetProxies } from '~/api/use-get-proxies'
 import { TagProxyStatus } from '~/components/tag-proxy-status'
 
 export function TableProxies() {
   const getProxies = useGetProxies()
+
+  const proxies = groupBy(getProxies.data, 'status')
 
   return (
     <Table
@@ -24,6 +27,7 @@ export function TableProxies() {
           dataIndex: 'status',
           key: 'status',
           render: (status) => <TagProxyStatus status={status} />,
+          sorter: (a, b) => a.status.localeCompare(b.status),
           title: 'Status'
         }
       ]}
@@ -31,7 +35,15 @@ export function TableProxies() {
       loading={getProxies.isLoading}
       pagination={{ className: 'px-4', defaultPageSize: 50 }}
       rowKey="id"
-      scroll={{ y: 'calc(100vh - 220px)' }}
+      scroll={{ y: 'calc(100vh - 280px)' }}
+      title={() => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">Summary:</span>
+          {Object.entries(proxies).map(([status, proxies]) => (
+            <TagProxyStatus key={status} status={status} total={proxies.length} />
+          ))}
+        </div>
+      )}
     />
   )
 }

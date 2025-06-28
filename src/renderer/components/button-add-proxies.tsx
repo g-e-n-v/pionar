@@ -1,3 +1,4 @@
+import { Proxy } from '#/types/db.type'
 import { App, Button, Input, Modal } from 'antd'
 import { CloudPlus } from 'iconsax-reactjs'
 import { useState } from 'react'
@@ -22,6 +23,7 @@ export function ButtonAddProxies() {
         host,
         password,
         port: Number(port),
+        status: 'not-verified' as Proxy['status'],
         username
       }
     })

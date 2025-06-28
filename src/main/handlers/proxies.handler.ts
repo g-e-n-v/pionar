@@ -34,7 +34,7 @@ export async function verifyProxies(url: string) {
     const agent = new HttpsProxyAgent(proxyUrl)
 
     queue.add(async () => {
-      getWindow()?.webContents.send('check-proxy-finish', { id, status: 'processing' })
+      await updateProxy(id, { status: 'processing' })
 
       return await axios
         .get(url, { httpAgent: agent, httpsAgent: agent })

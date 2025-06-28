@@ -4,9 +4,10 @@ import { cn } from '~/utils/cn.util'
 
 type TagProxyStatusProps = {
   status: string
+  total?: number
 }
 
-export function TagProxyStatus({ status }: TagProxyStatusProps) {
+export function TagProxyStatus({ status, total }: TagProxyStatusProps) {
   return (
     <Tag
       className={cn('text-white border-none', {
@@ -16,7 +17,7 @@ export function TagProxyStatus({ status }: TagProxyStatusProps) {
         'bg-red-500': status === 'inactive'
       })}
     >
-      {status}
+      {status} {total ? `(${total})` : ''}
     </Tag>
   )
 }
