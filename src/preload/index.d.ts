@@ -4,6 +4,8 @@ import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
+type Fn<Input, Output = void> = (args: Input) => Output
+
 declare global {
   interface Window {
     api: {
@@ -20,7 +22,7 @@ declare global {
       deleteProxies: typeof deleteProxies
     }
     electron: ElectronAPI & {
-      onFinishCheckProxy: (callback: () => void) => void
+      onFinishCheckProxy: (callback: Fn<{ id: number; status: string }>) => void
     }
   }
 }

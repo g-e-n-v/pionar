@@ -11,9 +11,9 @@ export function TagProxyStatus({ status }: TagProxyStatusProps) {
     <Tag
       className={cn('text-white border-none', {
         'bg-gray-500': status === 'not-verified',
-        'bg-green-500': status === 'live',
-        'bg-red-500': status === 'dead',
-        'bg-violet-500': status === 'invalid-format'
+        'bg-green-500': status === 'active',
+        'bg-orange-500': status === 'processing',
+        'bg-red-500': status === 'inactive'
       })}
     >
       {status}

@@ -18,8 +18,12 @@ const api = {
   deleteProxies: () => ipcRenderer.invoke('delete-proxies')
 }
 
+/* ------------------------------ Events ------------------------------ */
+const createListener = (key: string) => (callback: (...args: unknown[]) => void) =>
+  ipcRenderer.on(key, (_, ...args) => callback(...args))
+
 const event = {
-  onFinishCheckProxy: (callback: () => void) => ipcRenderer.on('check-proxy-finish', callback)
+  onFinishCheckProxy: createListener('check-proxy-finish')
 }
 
 if (process.contextIsolated) {

@@ -27,16 +27,21 @@ export async function updateProxy(id: number, proxy: ProxyUpdate) {
 
 export async function verifyProxies(url: string) {
   const proxies = await getProxies()
-  const queue = createPromiseQueue({ concurrency: 300 })
+  const queue = createPromiseQueue({ concurrency: 100 })
 
-  const promiseFunctions = proxies.map(({ host, id, password, port, username }) => {
+  for (const { host, id, password, port, username } of proxies) {
     const proxyUrl = `http://${username}:${password}@${host}:${port}`
     const agent = new HttpsProxyAgent(proxyUrl)
 
-    return () =>
-      axios
+    queue.add(async () => {
+      getWindow()?.webContents.send('check-proxy-finish', { id, status: 'processing' })
+
+      return await axios
         .get(url, { httpAgent: agent, httpsAgent: agent })
-        .then(() => updateProxy(id, { status: 'live' }))
+        .then(() => {
+          updateProxy(id, { status: 'active' })
+          getWindow()?.webContents.send('check-proxy-finish', { id, status: 'active' })
+        })
         .catch(async (error) => {
           const code = get(error, 'code')
 
@@ -47,12 +52,12 @@ export async function verifyProxies(url: string) {
           }
 
           const reason = ERROR_MESSAGE[code ?? ''] || 'Lỗi không xác định'
-          await updateProxy(id, { note: reason, status: 'dead' })
-        })
-        .finally(() => {
-          getWindow()?.webContents.send('check-proxy-finish')
-        })
-  })
+          await updateProxy(id, { note: reason, status: 'inactive' })
 
-  queue.addAll(promiseFunctions)
+          getWindow()?.webContents.send('check-proxy-finish', { id, status: 'inactive' })
+        })
+    })
+  }
+
+  await queue.onIdle()
 }

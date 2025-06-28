@@ -2,9 +2,7 @@ import { Button, Input } from 'antd'
 import { Refresh2 } from 'iconsax-reactjs'
 import { useState } from 'react'
 
-import { genGetProxiesKey } from '~/api/use-get-proxies'
 import { useVerifyProxies } from '~/api/use-verify-proxies'
-import { queryClient } from '~/configs/tanstack-query.config'
 
 export function ButtonVerifyProxies() {
   const [inputValue, setInputValue] = useState('https://api.mainnet.minepi.com')
@@ -13,7 +11,6 @@ export function ButtonVerifyProxies() {
 
   const handleVerifyProxies = async () => {
     await verifyProxies.mutateAsync(inputValue)
-    queryClient.invalidateQueries({ queryKey: genGetProxiesKey() })
   }
 
   return (
