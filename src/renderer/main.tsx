@@ -23,7 +23,7 @@ export function ElectronApp() {
 
   const resetDatabase = useResetDatabase()
 
-  const [selectedKey, setSelectedKey] = useState('proxy')
+  const [selectedKey, setSelectedKey] = useState('wallet')
 
   const handleMenuItemClick: MenuProps['onClick'] = async ({ key }) => {
     if (key === 'reset-database') {

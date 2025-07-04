@@ -2,6 +2,7 @@
 import { resetDatabase } from '#/database'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
+import { addWallets } from '#/handlers/wallets.handler'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 type Fn<Input, Output = void> = (args: Input) => Output
@@ -20,6 +21,8 @@ declare global {
       getProxies: typeof getProxies
       verifyProxies: typeof verifyProxies
       deleteProxies: typeof deleteProxies
+
+      addWallets: typeof addWallets
     }
     electron: ElectronAPI & {
       onFinishCheckProxy: (callback: Fn<{ id: number; status: string }>) => void

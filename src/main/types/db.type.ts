@@ -8,8 +8,11 @@ export type BaseEntity<T = Record<string, unknown>> = T & {
 }
 
 export type DatabaseTables = {
+  junctionWalletTag: JunctionWalletTag
+  lock: Lock
   proxy: Proxy
   tag: Tag
+  wallet: Wallet
 }
 export type JunctionWalletTag = BaseEntity<{
   tagId: number
@@ -49,7 +52,7 @@ export type TagSelect = Selectable<Tag>
 
 export type TagUpdate = Updateable<Tag>
 export type Wallet = BaseEntity<{
-  error: string
+  error: null | string
   mnemonic: string
   nativeBalance: number
   numSponsored: number

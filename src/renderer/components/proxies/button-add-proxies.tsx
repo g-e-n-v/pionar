@@ -11,10 +11,9 @@ export function ButtonAddProxies() {
   const { notification } = App.useApp()
 
   const [open, setOpen] = useState(false)
+  const [inputValue, setInputValue] = useState<string>()
 
   const addProxies = useAddProxies()
-
-  const [inputValue, setInputValue] = useState<string>()
 
   const handleAddProxies = async () => {
     const proxies = inputValue?.split('\n').map((s) => {

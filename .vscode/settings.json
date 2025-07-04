@@ -8,5 +8,5 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["iconsax", "Insertable", "Kysely", "reactjs", "Sider", "Updateable"]
+  "cSpell.words": ["iconsax", "Insertable", "Keypair", "Kysely", "reactjs", "Sider", "Updateable"]
 }
