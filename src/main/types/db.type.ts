@@ -49,6 +49,7 @@ export type TagSelect = Selectable<Tag>
 
 export type TagUpdate = Updateable<Tag>
 export type Wallet = BaseEntity<{
+  error: string
   mnemonic: string
   nativeBalance: number
   numSponsored: number

@@ -47,6 +47,7 @@ export function ButtonAddProxies() {
 
       <Modal
         okButtonProps={{ disabled: addProxies.isPending, loading: addProxies.isPending }}
+        okText="Add"
         onCancel={() => setOpen(false)}
         onOk={handleAddProxies}
         open={open}
