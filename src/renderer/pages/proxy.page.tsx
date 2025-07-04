@@ -1,9 +1,9 @@
 import { Divider } from 'antd'
 
-import { ButtonAddProxies } from '~/components/button-add-proxies'
-import { ButtonDeleteAllProxies } from '~/components/button-delete-all-proxies'
-import { ButtonVerifyProxies } from '~/components/button-verify-proxies'
-import { TableProxies } from '~/components/table-proxies'
+import { ButtonAddProxies } from '~/components/proxies/button-add-proxies'
+import { ButtonDeleteAllProxies } from '~/components/proxies/button-delete-all-proxies'
+import { ButtonVerifyProxies } from '~/components/proxies/button-verify-proxies'
+import { TableProxies } from '~/components/proxies/table-proxies'
 
 export function ProxyPage() {
   return (

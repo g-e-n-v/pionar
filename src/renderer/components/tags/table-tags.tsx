@@ -1,7 +1,7 @@
 import { ColorPicker, Table, Tag } from 'antd'
 
 import { useGetTags } from '~/api/use-get-tags'
-import { ButtonDeleteTag } from '~/components/button-delete-tag'
+import { ButtonDeleteTag } from '~/components/tags/button-delete-tag'
 
 export function TableTags() {
   const getTags = useGetTags()

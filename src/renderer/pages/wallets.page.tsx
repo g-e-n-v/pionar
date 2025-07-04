@@ -1,9 +1,10 @@
-import { TableWallets } from '~/components/table-wallets'
+import { TableWallets } from '~/components/wallets/table-wallets'
 
 export function WalletsPage() {
   return (
-    <div>
+    <>
+      <div></div>
       <TableWallets />
-    </div>
+    </>
   )
 }

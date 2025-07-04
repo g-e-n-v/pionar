@@ -2,7 +2,7 @@ import { Input, Table } from 'antd'
 import { groupBy } from 'lodash-es'
 
 import { useGetProxies } from '~/api/use-get-proxies'
-import { TagProxyStatus } from '~/components/tag-proxy-status'
+import { TagProxyStatus } from '~/components/tags/tag-proxy-status'
 
 export function TableProxies() {
   const getProxies = useGetProxies()

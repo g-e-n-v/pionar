@@ -1,5 +1,5 @@
-import { FormAddTag } from '~/components/form-add-tag'
-import { TableTags } from '~/components/table-tags'
+import { FormAddTag } from '~/components/tags/form-add-tag'
+import { TableTags } from '~/components/tags/table-tags'
 
 export function TagPage() {
   return (
