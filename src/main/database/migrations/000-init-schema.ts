@@ -33,10 +33,18 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('tagId', 'integer', (col) => col.references('tag.id').onDelete('cascade'))
     .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
     .execute()
+
+  await createTableWithBaseColumns(db, 'lock')
+    .addColumn('amount', 'integer', (col) => col.notNull())
+    .addColumn('unlockAt', 'datetime', (col) => col.notNull())
+    .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
+    .execute()
 }
 
 async function down(db: Kysely<DatabaseTables>) {
   await db.schema.dropTable('junction_wallet_tag').ifExists().execute()
+  await db.schema.dropTable('lock').ifExists().execute()
+  await db.schema.dropTable('wallet').ifExists().execute()
   await db.schema.dropTable('proxy').ifExists().execute()
   await db.schema.dropTable('tag').ifExists().execute()
 }

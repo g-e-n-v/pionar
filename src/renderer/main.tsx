@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { App, ConfigProvider, Divider, Layout, Menu, MenuProps, Spin } from 'antd'
-import { CloudConnection, Drop, Refresh, Tag } from 'iconsax-reactjs'
+import { CloudConnection, Refresh, Tag, Wallet } from 'iconsax-reactjs'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -8,9 +8,9 @@ import { useElectronListener } from '~/api/use-electron-listener'
 import { useResetDatabase } from '~/api/use-reset-database'
 import { antTheme } from '~/configs/ant.config'
 import { queryClient } from '~/configs/tanstack-query.config'
-import { FeeWalletsPage } from '~/pages/fee-wallets.page'
 import { ProxyPage } from '~/pages/proxy.page'
 import { TagPage } from '~/pages/tag.page'
+import { WalletsPage } from '~/pages/wallets.page'
 import '~/global.css'
 import '@ant-design/v5-patch-for-react-19'
 
@@ -50,9 +50,9 @@ export function ElectronApp() {
         <Menu
           items={[
             {
-              icon: <Drop size={16} variant="Bulk" />,
-              key: 'fee-wallets',
-              label: 'Fee Wallets'
+              icon: <Wallet size={16} variant="Bulk" />,
+              key: 'wallet',
+              label: 'Wallets'
             },
             {
               icon: <CloudConnection size={16} variant="Bulk" />,
@@ -87,7 +87,7 @@ export function ElectronApp() {
       <Layout>
         <Content className="p-4">
           {selectedKey === 'tag' && <TagPage />}
-          {selectedKey === 'fee-wallets' && <FeeWalletsPage />}
+          {selectedKey === 'wallet' && <WalletsPage />}
           {selectedKey === 'proxy' && <ProxyPage />}
         </Content>
       </Layout>

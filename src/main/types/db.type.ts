@@ -1,12 +1,16 @@
 import { Generated, Insertable, Selectable, Updateable } from 'kysely'
 
 export type BaseEntity<T = Record<string, unknown>> = T & {
-  createdAt: Generated<Date>
-  deletedAt: Date | null
+  createdAt: Generated<string>
+  deletedAt: null | string
   id: Generated<number>
-  updatedAt: Date | null
+  updatedAt: null | string
 }
 
+export type DatabaseTables = {
+  proxy: Proxy
+  tag: Tag
+}
 export type JunctionWalletTag = BaseEntity<{
   tagId: number
   walletId: number
@@ -14,6 +18,15 @@ export type JunctionWalletTag = BaseEntity<{
 export type JunctionWalletTagInsert = Insertable<JunctionWalletTag>
 export type JunctionWalletTagSelect = Selectable<JunctionWalletTag>
 export type JunctionWalletTagUpdate = Updateable<JunctionWalletTag>
+
+export type Lock = BaseEntity<{
+  amount: number
+  unlockAt: string
+  walletId: number
+}>
+export type LockInsert = Insertable<Lock>
+export type LockSelect = Selectable<Lock>
+export type LockUpdate = Updateable<Lock>
 
 export type Proxy = BaseEntity<{
   host: string
@@ -25,16 +38,16 @@ export type Proxy = BaseEntity<{
 }>
 export type ProxyInsert = Insertable<Proxy>
 export type ProxySelect = Selectable<Proxy>
-export type ProxyUpdate = Updateable<Proxy>
 
+export type ProxyUpdate = Updateable<Proxy>
 export type Tag = BaseEntity<{
   color: null | string
   text: string
 }>
 export type TagInsert = Insertable<Tag>
 export type TagSelect = Selectable<Tag>
-export type TagUpdate = Updateable<Tag>
 
+export type TagUpdate = Updateable<Tag>
 export type Wallet = BaseEntity<{
   mnemonic: string
   nativeBalance: number
@@ -46,12 +59,5 @@ export type Wallet = BaseEntity<{
 }>
 export type WalletInsert = Insertable<Wallet>
 export type WalletSelect = Selectable<Wallet>
-export type WalletUpdate = Updateable<Wallet> & {
-  privateKey: string
-}
 
-// eslint-disable-next-line perfectionist/sort-modules
-export type DatabaseTables = {
-  proxy: Proxy
-  tag: Tag
-}
+export type WalletUpdate = Updateable<Wallet>
