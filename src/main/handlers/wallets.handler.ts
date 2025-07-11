@@ -3,7 +3,7 @@ import { api } from '#/services/api-client.service'
 import { getKeypair } from '#/services/stellar.service'
 import { LockInsert } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
-import { pick } from 'lodash-es'
+import { min, pick, round } from 'lodash-es'
 
 export async function addWallets(mnemonics: Array<string>) {
   for (const mnemonic of mnemonics) {
@@ -22,45 +22,7 @@ export async function addWallets(mnemonics: Array<string>) {
       .executeTakeFirstOrThrow()
       .then((rs) => rs.id)
 
-    try {
-      const getAccount = await api.get<AccountResponse>(
-        `https://horizon.piscan.io/accounts/${publicKey}`
-      )
-      const getClaimants = await api.get<ClaimantResponse>(
-        `https://horizon.piscan.io/claimable_balances?claimant=${publicKey}&limit=100`
-      )
-      const nativeBalance = Number(
-        getAccount.data.balances.find((item) => item.assetType === 'native')?.balance ?? -1
-      )
-
-      const wallet = {
-        ...pick(getAccount.data, ['subentryCount', 'numSponsored', 'numSponsoring']),
-        mnemonic,
-        nativeBalance,
-        privateKey,
-        publicKey
-      }
-      await db.updateTable('wallet').set(wallet).where('id', '=', walletId).execute()
-
-      const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
-        const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
-
-        if (!claimant?.predicate.unconditional) return acc
-
-        return [
-          ...acc,
-          {
-            amount: Number(record.amount),
-            unlockAt: claimant?.predicate.not?.absBefore ?? '',
-            walletId
-          }
-        ]
-      }, [])
-
-      locks.length && (await db.insertInto('lock').values(locks).execute())
-    } catch (error) {
-      console.log(String(error))
-    }
+    await updateWallet(walletId, { publicKey })
   }
 }
 
@@ -77,18 +39,67 @@ export async function getWallets() {
       'wallet.numSponsoring as numSponsoring',
       'wallet.subentryCount as subentryCount',
       'wallet.publicKey as publicKey',
-      'wallet.privateKey as privateKey'
+      'wallet.privateKey as privateKey',
+      'wallet.updatedAt as walletUpdatedAt'
     ])
     .execute()
 
   const wallets = rawWallets.map((wallet) => {
     const { nativeBalance, numSponsored, numSponsoring, subentryCount } = wallet
 
-    const minReserve = (2 + subentryCount + numSponsoring - numSponsored) * BASE_REVERSE
-    const availableBalance = nativeBalance - minReserve
+    const minReserve = (2 + subentryCount + numSponsoring - numSponsored) * BASE_REVERSE + 0.01
+    const availableBalance =
+      nativeBalance > 0 ? min([round(nativeBalance - minReserve, 7), 0]) : null
 
     return { ...wallet, availableBalance }
   })
 
   return wallets
+}
+
+export async function updateWallet(walletId: number, args: { publicKey?: string }) {
+  const {
+    publicKey = await db
+      .selectFrom('wallet')
+      .select('publicKey')
+      .where('id', '=', walletId)
+      .executeTakeFirstOrThrow()
+  } = args
+
+  try {
+    const getAccount = await api.get<AccountResponse>(
+      `https://horizon.piscan.io/accounts/${publicKey}`
+    )
+    const getClaimants = await api.get<ClaimantResponse>(
+      `https://horizon.piscan.io/claimable_balances?claimant=${publicKey}&limit=100`
+    )
+    const nativeBalance = Number(
+      getAccount.data.balances.find((item) => item.assetType === 'native')?.balance ?? -1
+    )
+
+    const wallet = {
+      ...pick(getAccount.data, ['subentryCount', 'numSponsored', 'numSponsoring']),
+      nativeBalance
+    }
+    await db.updateTable('wallet').set(wallet).where('id', '=', walletId).execute()
+
+    const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
+      const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
+
+      if (!claimant?.predicate.unconditional) return acc
+
+      return [
+        ...acc,
+        {
+          amount: Number(record.amount),
+          unlockAt: claimant?.predicate.not?.absBefore ?? '',
+          walletId
+        }
+      ]
+    }, [])
+
+    locks.length && (await db.insertInto('lock').values(locks).execute())
+  } catch (error) {
+    console.log(String(error))
+  }
 }
