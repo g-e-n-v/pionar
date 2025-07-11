@@ -20,7 +20,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .execute()
 
   await createTableWithBaseColumns(db, 'wallet')
-    .addColumn('mnemonic', 'text', (col) => col.notNull())
+    .addColumn('mnemonic', 'text', (col) => col.notNull().unique())
     .addColumn('privateKey', 'text', (col) => col.notNull())
     .addColumn('publicKey', 'text', (col) => col.notNull())
     .addColumn('subentryCount', 'integer', (col) => col.notNull().defaultTo(0))
@@ -30,7 +30,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('error', 'text')
     .execute()
 
-  await createTableWithBaseColumns(db, 'junction_wallet_tag')
+  await createTableWithBaseColumns(db, 'junctionWalletTag')
     .addColumn('tagId', 'integer', (col) => col.references('tag.id').onDelete('cascade'))
     .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
     .execute()
@@ -43,7 +43,7 @@ async function up(db: Kysely<DatabaseTables>) {
 }
 
 async function down(db: Kysely<DatabaseTables>) {
-  await db.schema.dropTable('junction_wallet_tag').ifExists().execute()
+  await db.schema.dropTable('junctionWalletTag').ifExists().execute()
   await db.schema.dropTable('lock').ifExists().execute()
   await db.schema.dropTable('wallet').ifExists().execute()
   await db.schema.dropTable('proxy').ifExists().execute()

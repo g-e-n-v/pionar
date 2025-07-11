@@ -1,7 +1,7 @@
 import { resetDatabase } from '#/database'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
-import { addWallets } from '#/handlers/wallets.handler'
+import { addWallets, getWallets } from '#/handlers/wallets.handler'
 import { ProxyInsert, TagInsert, TagUpdate } from '#/types/db.type'
 import { ipcMain } from 'electron/main'
 
@@ -19,4 +19,5 @@ export function registerIpcHandlers() {
   ipcMain.handle('delete-proxies', () => deleteProxies())
 
   ipcMain.handle('add-wallets', (_, mnemonics: Array<string>) => addWallets(mnemonics))
+  ipcMain.handle('get-wallets', () => getWallets())
 }

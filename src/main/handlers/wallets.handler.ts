@@ -9,56 +9,86 @@ export async function addWallets(mnemonics: Array<string>) {
   for (const mnemonic of mnemonics) {
     const { privateKey, publicKey } = getKeypair(mnemonic)
 
-    const getAccount = await api.get<AccountResponse>(
-      `https://horizon.piscan.io/accounts/${publicKey}`
-    )
-    const getClaimants = await api.get<ClaimantResponse>(
-      `https://horizon.piscan.io/claimable_balances?claimant=${publicKey}&limit=100`
-    )
+    await db
+      .insertInto('wallet')
+      .values({ mnemonic, privateKey, publicKey })
+      .onConflict((builder) => builder.doNothing())
+      .execute()
 
-    const nativeBalance = Number(
-      getAccount.data.balances.find((item) => item.assetType === 'native')?.balance ?? -1
-    )
-
-    const existWallet = await db
+    const walletId = await db
       .selectFrom('wallet')
-      .where('wallet.mnemonic', '=', mnemonic)
-      .select('wallet.id')
-      .executeTakeFirst()
+      .select('id')
+      .where('publicKey', '=', publicKey)
+      .executeTakeFirstOrThrow()
+      .then((rs) => rs.id)
 
-    const wallet = {
-      ...pick(getAccount.data, ['subentryCount', 'numSponsored', 'numSponsoring']),
-      mnemonic,
-      nativeBalance,
-      privateKey,
-      publicKey
-    }
+    try {
+      const getAccount = await api.get<AccountResponse>(
+        `https://horizon.piscan.io/accounts/${publicKey}`
+      )
+      const getClaimants = await api.get<ClaimantResponse>(
+        `https://horizon.piscan.io/claimable_balances?claimant=${publicKey}&limit=100`
+      )
+      const nativeBalance = Number(
+        getAccount.data.balances.find((item) => item.assetType === 'native')?.balance ?? -1
+      )
 
-    const walletId = await (async () => {
-      if (existWallet) {
-        await db.updateTable('wallet').set(wallet).where('id', '=', existWallet.id).execute()
-        return existWallet.id
-      } else {
-        const { insertId } = await db.insertInto('wallet').values(wallet).executeTakeFirst()
-        return Number(insertId)
+      const wallet = {
+        ...pick(getAccount.data, ['subentryCount', 'numSponsored', 'numSponsoring']),
+        mnemonic,
+        nativeBalance,
+        privateKey,
+        publicKey
       }
-    })()
+      await db.updateTable('wallet').set(wallet).where('id', '=', walletId).execute()
 
-    const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
-      const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
+      const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
+        const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
 
-      if (!claimant?.predicate.unconditional) return acc
+        if (!claimant?.predicate.unconditional) return acc
 
-      return [
-        ...acc,
-        {
-          amount: Number(record.amount),
-          unlockAt: claimant?.predicate.not?.absBefore ?? '',
-          walletId
-        }
-      ]
-    }, [])
+        return [
+          ...acc,
+          {
+            amount: Number(record.amount),
+            unlockAt: claimant?.predicate.not?.absBefore ?? '',
+            walletId
+          }
+        ]
+      }, [])
 
-    locks.length && (await db.insertInto('lock').values(locks).execute())
+      locks.length && (await db.insertInto('lock').values(locks).execute())
+    } catch (error) {
+      console.log(String(error))
+    }
   }
+}
+
+export async function getWallets() {
+  const BASE_REVERSE = 0.49
+
+  const rawWallets = await db
+    .selectFrom('wallet')
+    .select([
+      'wallet.id as walletId',
+      'wallet.mnemonic as mnemonic',
+      'wallet.nativeBalance as nativeBalance',
+      'wallet.numSponsored as numSponsored',
+      'wallet.numSponsoring as numSponsoring',
+      'wallet.subentryCount as subentryCount',
+      'wallet.publicKey as publicKey',
+      'wallet.privateKey as privateKey'
+    ])
+    .execute()
+
+  const wallets = rawWallets.map((wallet) => {
+    const { nativeBalance, numSponsored, numSponsoring, subentryCount } = wallet
+
+    const minReserve = (2 + subentryCount + numSponsoring - numSponsored) * BASE_REVERSE
+    const availableBalance = nativeBalance - minReserve
+
+    return { ...wallet, availableBalance }
+  })
+
+  return wallets
 }

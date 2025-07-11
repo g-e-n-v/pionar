@@ -54,12 +54,12 @@ export type TagUpdate = Updateable<Tag>
 export type Wallet = BaseEntity<{
   error: null | string
   mnemonic: string
-  nativeBalance: number
-  numSponsored: number
-  numSponsoring: number
+  nativeBalance: Generated<number>
+  numSponsored: Generated<number>
+  numSponsoring: Generated<number>
   privateKey: string
   publicKey: string
-  subentryCount: number
+  subentryCount: Generated<number>
 }>
 export type WalletInsert = Insertable<Wallet>
 export type WalletSelect = Selectable<Wallet>
