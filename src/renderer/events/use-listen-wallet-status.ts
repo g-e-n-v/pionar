@@ -4,7 +4,6 @@ import { useElectronListen } from '~/events/use-electron-listen'
 
 export function useListenWalletStatus() {
   useElectronListen('wallet:status', ({ id, status }) => {
-    console.log('wallet:status', { id, status })
     const queryKey = genGetWalletsKey()
 
     const fn = (wallets: Awaited<ReturnType<typeof window.api.getWallets>>) => {

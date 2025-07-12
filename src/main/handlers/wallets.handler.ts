@@ -10,7 +10,7 @@ import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
 import { Asset, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
 import { get, max, pick, round } from 'lodash-es'
 
-const BASE_FEE = 100_000 // 0.01 π
+const BASE_FEE = 1_00000 // 0.01 π
 
 export async function addWallets(mnemonics: Array<string>) {
   const proxies = await getProxies()
@@ -30,29 +30,33 @@ export async function addWallets(mnemonics: Array<string>) {
 }
 
 export async function collectFunds(receiver: string) {
-  const wallets = (await getWallets()).filter(
-    (wallet) => wallet.availableBalance && wallet.publicKey !== receiver
-  )
+  const wallets = (await getWallets()).filter((wallet) => {
+    const amount = (wallet.availableBalance ?? 0) - 0.01
+    return amount > 0.01 && wallet.publicKey !== receiver
+  })
   const proxies = await getProxies()
   const queue = createPromiseQueue({ concurrency: 500 })
 
   const tasks = wallets.map((wallet, idx) => async () => {
     const proxy = proxies[idx % proxies.length]
-    const api = createAPIClient({ baseURL: 'https://api.mainnet.minepi.com', proxy })
+    const api = createAPIClient({
+      baseURL: 'https://api.mainnet.minepi.com',
+      proxy,
+      useCaseMiddleware: false
+    })
 
-    const amount = (wallet.availableBalance ?? 0) - 0.02
-    if (amount <= 0) return
+    const amount = (wallet.availableBalance ?? 0) - 0.01
 
     try {
       const account = await loadAccount({ client: api, publicKey: wallet.publicKey })
 
       const tx = new TransactionBuilder(account, {
-        fee: (BASE_FEE * 1).toFixed(),
+        fee: BASE_FEE.toString(),
         networkPassphrase: 'Pi Network'
       })
         .addOperation(
           Operation.payment({
-            amount: round(amount, 7).toString(),
+            amount: amount.toFixed(7),
             asset: Asset.native(),
             destination: receiver
           })
@@ -67,12 +71,14 @@ export async function collectFunds(receiver: string) {
       const hash = get(data, 'hash')
       hash ? console.log(hash) : console.log(JSON.stringify(data))
     } catch (error) {
-      console.log(String(error))
+      console.trace(error)
     }
   })
 
   await queue.addAll(tasks)
   await queue.onIdle()
+
+  await refreshWallets(wallets.map((wallet) => wallet.id))
 }
 
 export async function getWallets() {

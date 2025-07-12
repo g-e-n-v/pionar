@@ -11,11 +11,14 @@ export const api = applyCaseMiddleware(axios.create())
 export function createAPIClient(args: {
   baseURL?: string
   proxy?: Pick<Proxy, 'host' | 'password' | 'port' | 'username'>
+  useCaseMiddleware?: boolean
 }) {
-  const { baseURL, proxy: { host, password, port, username } = {} } = args
+  const { baseURL, proxy: { host, password, port, username } = {}, useCaseMiddleware = true } = args
   const agent = host
     ? new HttpsProxyAgent(`http://${username}:${password}@${host}:${port}`)
     : undefined
 
-  return applyCaseMiddleware(axios.create({ baseURL, httpAgent: agent, httpsAgent: agent }))
+  const instance = axios.create({ baseURL, httpAgent: agent, httpsAgent: agent })
+
+  return useCaseMiddleware ? applyCaseMiddleware(instance) : instance
 }

@@ -22,7 +22,5 @@ export async function upsert<
     .returning(['id'])
     .execute()
 
-  console.log({ result })
-
   return first(result)!
 }
