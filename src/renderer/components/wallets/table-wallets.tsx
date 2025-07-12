@@ -1,5 +1,4 @@
 import { Table } from 'antd'
-import { isNil } from 'lodash-es'
 
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
@@ -10,6 +9,8 @@ import { formatDatetime } from '~/utils/date.util'
 export function TableWallets() {
   const getWallets = useGetWallets()
 
+  console.log(getWallets.data)
+
   return (
     <Table
       className="shadow rounded-lg overflow-hidden bg-white"
@@ -17,11 +18,14 @@ export function TableWallets() {
         { dataIndex: 'walletId', title: '#', width: 60 },
         {
           dataIndex: 'mnemonic',
-          render: (text, { availableBalance }) => (
+          render: (text, { status }) => (
             <div className="flex items-center gap-2">
               <div
-                className={cn('size-3 rounded-full bg-green-500', {
-                  'bg-red-500': isNil(availableBalance)
+                className={cn('size-3 rounded-full', {
+                  'bg-gray-500': status === 'not_started',
+                  'bg-green-500': status === 'valid',
+                  'bg-orange-500': status === 'processing',
+                  'bg-red-500': status === 'invalid'
                 })}
               />
               <Text className="flex items-center" copyable ellipsisMiddle>
@@ -44,12 +48,17 @@ export function TableWallets() {
           dataIndex: 'availableBalance',
           title: 'Balance'
         },
+        {
+          dataIndex: 'lockCount',
+          sorter: true,
+          title: 'Lock Count'
+        },
         { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' },
         {
           fixed: 'right',
-          render: (_, { walletId }) => (
+          render: (_, { id, status }) => (
             <>
-              <ButtonRefreshWallets walletIds={[walletId]} />
+              <ButtonRefreshWallets disabled={status === 'processing'} walletIds={[id]} />
             </>
           ),
           title: 'Action'
@@ -57,7 +66,7 @@ export function TableWallets() {
       ]}
       dataSource={getWallets.data}
       pagination={{ className: 'px-4' }}
-      rowKey={(record) => record.walletId}
+      rowKey={(record) => record.id}
       scroll={{ x: 'max-content' }}
     />
   )

@@ -4,7 +4,7 @@ import { trim } from 'lodash-es'
 import { useState } from 'react'
 
 import { useAddWallets } from '~/api/use-add-wallets'
-import { genGetWallets } from '~/api/use-get-wallets'
+import { genGetWalletsKey } from '~/api/use-get-wallets'
 import { queryClient } from '~/configs/tanstack-query.config'
 
 export function ButtonAddWallets() {
@@ -26,7 +26,7 @@ export function ButtonAddWallets() {
     setInputValue('')
     setOpen(false)
 
-    queryClient.invalidateQueries({ queryKey: genGetWallets() })
+    queryClient.invalidateQueries({ queryKey: genGetWalletsKey() })
   }
 
   return (

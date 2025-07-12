@@ -4,6 +4,7 @@ import { getProxies } from '#/handlers/proxies.handler'
 import { createAPIClient } from '#/services/api-client.service'
 import { createPromiseQueue } from '#/services/promise-queue.service'
 import { getKeypair } from '#/services/stellar.service'
+import { sendEvent } from '#/services/window.service'
 import { LockInsert, Proxy, WalletUpdate } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
 import { max, pick, round } from 'lodash-es'
@@ -29,8 +30,9 @@ export async function getWallets() {
 
   const rawWallets = await db
     .selectFrom('wallet')
+    .leftJoin('lock', 'lock.walletId', 'wallet.id')
     .select([
-      'wallet.id as walletId',
+      'wallet.id as id',
       'wallet.mnemonic as mnemonic',
       'wallet.nativeBalance as nativeBalance',
       'wallet.numSponsored as numSponsored',
@@ -38,8 +40,11 @@ export async function getWallets() {
       'wallet.subentryCount as subentryCount',
       'wallet.publicKey as publicKey',
       'wallet.privateKey as privateKey',
-      'wallet.updatedAt as walletUpdatedAt'
+      'wallet.updatedAt as updatedAt',
+      'wallet.status as status',
+      db.fn.count('lock.id').as('lockCount')
     ])
+    .groupBy('wallet.id')
     .execute()
 
   const wallets = rawWallets.map((wallet) => {
@@ -56,7 +61,7 @@ export async function getWallets() {
 
 export async function refreshWallets(walletIds: Array<number>) {
   const proxies = await getProxies()
-  const queue = createPromiseQueue({ concurrency: 100 })
+  const queue = createPromiseQueue({ concurrency: 300 })
 
   const tasks = walletIds.map((walletId) => async () => {
     const proxy = proxies[walletId % proxies.length]
@@ -77,6 +82,7 @@ async function updateWallet(
     .set({ status: 'processing' })
     .where('id', '=', walletId)
     .executeTakeFirst()
+  sendEvent('wallet:status', { id: walletId, status: 'processing' })
 
   const { publicKey } = await db
     .selectFrom('wallet')
@@ -103,6 +109,7 @@ async function updateWallet(
       status: 'valid'
     }
     await db.updateTable('wallet').set(wallet).where('id', '=', walletId).execute()
+    sendEvent('wallet:status', { id: walletId, status: 'valid' })
 
     const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
       const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
@@ -123,5 +130,6 @@ async function updateWallet(
   } catch (error) {
     console.log(String(error))
     await db.updateTable('wallet').set({ status: 'invalid' }).where('id', '=', walletId).execute()
+    sendEvent('wallet:status', { id: walletId, status: 'invalid' })
   }
 }
