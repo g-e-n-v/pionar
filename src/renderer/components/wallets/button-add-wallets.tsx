@@ -1,6 +1,5 @@
 import { App, Button, Input, Modal } from 'antd'
 import { WalletAdd } from 'iconsax-reactjs'
-import { trim } from 'lodash-es'
 import { useState } from 'react'
 
 import { useAddWallets } from '~/api/use-add-wallets'
@@ -18,7 +17,16 @@ export function ButtonAddWallets() {
   const handleAddWallets = async () => {
     if (!inputValue) return
 
-    const mnemonics = inputValue.split('\n').filter(Boolean).map(trim)
+    const mnemonics = inputValue
+      .split('\n')
+      .filter(Boolean)
+      .map((mnemonic) =>
+        mnemonic
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z\s]/g, '')
+          .replace(/\s+/g, ' ')
+      )
     await addWallets.mutateAsync(mnemonics)
 
     notification.success({ message: 'Add wallets successfully' })

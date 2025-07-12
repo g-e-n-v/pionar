@@ -3,11 +3,14 @@ import { upsert } from '#/database/utils/upsert.db'
 import { getProxies } from '#/handlers/proxies.handler'
 import { createAPIClient } from '#/services/api-client.service'
 import { createPromiseQueue } from '#/services/promise-queue.service'
-import { getKeypair } from '#/services/stellar.service'
+import { getKeypair, loadAccount } from '#/services/stellar.service'
 import { sendEvent } from '#/services/window.service'
 import { LockInsert, Proxy, WalletUpdate } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
-import { max, pick, round } from 'lodash-es'
+import { Asset, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
+import { get, max, pick, round } from 'lodash-es'
+
+const BASE_FEE = 100_000 // 0.01 π
 
 export async function addWallets(mnemonics: Array<string>) {
   const proxies = await getProxies()
@@ -20,6 +23,48 @@ export async function addWallets(mnemonics: Array<string>) {
     const wallet = await upsert('wallet', { mnemonic, privateKey, publicKey }, 'mnemonic')
 
     await updateWallet(wallet.id, { proxy })
+  })
+
+  await queue.addAll(tasks)
+  await queue.onIdle()
+}
+
+export async function collectFunds(receiver: string) {
+  const wallets = (await getWallets()).filter(
+    (wallet) => wallet.availableBalance && wallet.publicKey !== receiver
+  )
+  const proxies = await getProxies()
+  const queue = createPromiseQueue({ concurrency: 500 })
+
+  const tasks = wallets.map((wallet, idx) => async () => {
+    const proxy = proxies[idx % proxies.length]
+    const api = createAPIClient({ baseURL: 'https://api.mainnet.minepi.com', proxy })
+
+    const account = await loadAccount({ client: api, publicKey: wallet.publicKey })
+    const tx = new TransactionBuilder(account, {
+      fee: (BASE_FEE * 1).toFixed(7),
+      networkPassphrase: 'Pi Network'
+    })
+      .addOperation(
+        Operation.payment({
+          amount: (wallet.availableBalance! - 0.01).toFixed(7),
+          asset: Asset.native(),
+          destination: receiver
+        })
+      )
+      .setTimeout(360)
+      .build()
+
+    tx.sign(getKeypair(wallet.mnemonic).keypair)
+
+    await api
+      .post('/transactions', { tx: tx.toEnvelope().toXDR('base64') })
+      .then(({ data }) => {
+        const hash = get(data, 'hash')
+
+        hash ? console.log(hash) : console.log(JSON.stringify(data))
+      })
+      .catch((error) => console.log(String(error)))
   })
 
   await queue.addAll(tasks)

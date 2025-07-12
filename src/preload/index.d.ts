@@ -2,7 +2,7 @@
 import { resetDatabase } from '#/database'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
-import { addWallets, getWallets, refreshWallets } from '#/handlers/wallets.handler'
+import { addWallets, collectFunds, getWallets, refreshWallets } from '#/handlers/wallets.handler'
 import { IPCEvent } from '#/types/ipc-event.type'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
@@ -26,6 +26,7 @@ declare global {
       addWallets: typeof addWallets
       getWallets: typeof getWallets
       refreshWallets: typeof refreshWallets
+      collectFunds: typeof collectFunds
     }
     electron: ElectronAPI & {
       on: <T extends IPCEvent['type']>(

@@ -16,7 +16,7 @@ export function Text({ children, copyable, ellipsisMiddle, ...props }: TextProps
       copyable={
         copyable && {
           icon: [
-            <Copy key="copy" size={16} variant="Bulk" />,
+            <Copy key="copy" size={16} variant="TwoTone" />,
             <CopySuccess key="copied" size={16} variant="Bulk" />
           ],
           onCopy: handleCopyText
