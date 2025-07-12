@@ -2,6 +2,7 @@ import { Divider } from 'antd'
 
 import { useGetWallets } from '~/api/use-get-wallets'
 import { ButtonAddWallets } from '~/components/wallets/button-add-wallets'
+import { ButtonCollectFunds } from '~/components/wallets/button-collect-funds'
 import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
 import { TableWallets } from '~/components/wallets/table-wallets'
 
@@ -22,6 +23,7 @@ export function WalletsPage() {
         >
           Refresh
         </ButtonRefreshWallets>
+        <ButtonCollectFunds />
       </div>
 
       <TableWallets />
