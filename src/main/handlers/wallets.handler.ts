@@ -40,31 +40,35 @@ export async function collectFunds(receiver: string) {
     const proxy = proxies[idx % proxies.length]
     const api = createAPIClient({ baseURL: 'https://api.mainnet.minepi.com', proxy })
 
-    const account = await loadAccount({ client: api, publicKey: wallet.publicKey })
-    const tx = new TransactionBuilder(account, {
-      fee: (BASE_FEE * 1).toFixed(7),
-      networkPassphrase: 'Pi Network'
-    })
-      .addOperation(
-        Operation.payment({
-          amount: (wallet.availableBalance! - 0.01).toFixed(7),
-          asset: Asset.native(),
-          destination: receiver
-        })
-      )
-      .setTimeout(360)
-      .build()
+    const amount = (wallet.availableBalance ?? 0) - 0.02
+    if (amount <= 0) return
 
-    tx.sign(getKeypair(wallet.mnemonic).keypair)
+    try {
+      const account = await loadAccount({ client: api, publicKey: wallet.publicKey })
 
-    await api
-      .post('/transactions', { tx: tx.toEnvelope().toXDR('base64') })
-      .then(({ data }) => {
-        const hash = get(data, 'hash')
-
-        hash ? console.log(hash) : console.log(JSON.stringify(data))
+      const tx = new TransactionBuilder(account, {
+        fee: (BASE_FEE * 1).toFixed(),
+        networkPassphrase: 'Pi Network'
       })
-      .catch((error) => console.log(String(error)))
+        .addOperation(
+          Operation.payment({
+            amount: round(amount, 7).toString(),
+            asset: Asset.native(),
+            destination: receiver
+          })
+        )
+        .setTimeout(360)
+        .build()
+
+      tx.sign(getKeypair(wallet.mnemonic).keypair)
+
+      const { data } = await api.post('/transactions', { tx: tx.toEnvelope().toXDR('base64') })
+
+      const hash = get(data, 'hash')
+      hash ? console.log(hash) : console.log(JSON.stringify(data))
+    } catch (error) {
+      console.log(String(error))
+    }
   })
 
   await queue.addAll(tasks)
@@ -160,8 +164,6 @@ async function updateWallet(
 
     const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
       const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
-
-      console.log({ claimant })
 
       if (claimant?.predicate.unconditional) return acc
 

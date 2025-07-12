@@ -1,6 +1,7 @@
 import { db } from '#/database'
 import { DatabaseTables } from '#/types/db.type'
 import { AnyColumn, Insertable } from 'kysely'
+import { first } from 'lodash-es'
 
 export async function upsert<
   Table extends keyof DatabaseTables,
@@ -9,7 +10,7 @@ export async function upsert<
 >(table: Table, data: Row, conflictColumn: ConflictColumn) {
   const updateColumns = Object.keys(data).filter((col) => col !== conflictColumn) as (keyof Row)[]
 
-  await db
+  const result = await db
     .insertInto(table)
     .values(data)
     .onConflict((oc) =>
@@ -18,14 +19,10 @@ export async function upsert<
         // @ts-ignore — skip check type for eb.ref
         .doUpdateSet((eb) => Object.fromEntries(updateColumns.map((col) => [col, eb.ref(col)])))
     )
+    .returning(['id'])
     .execute()
 
-  const result = await db
-    .selectFrom(table)
-    // @ts-ignore — safe for this context
-    .select(['id'])
-    .where(conflictColumn, '=', data[conflictColumn])
-    .executeTakeFirstOrThrow()
+  console.log({ result })
 
-  return result.id as { id: number }
+  return first(result)!
 }

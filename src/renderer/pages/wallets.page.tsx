@@ -1,6 +1,7 @@
 import { Divider } from 'antd'
 
 import { useGetWallets } from '~/api/use-get-wallets'
+import { FormSettings } from '~/components/form-settings'
 import { ButtonAddWallets } from '~/components/wallets/button-add-wallets'
 import { ButtonCollectFunds } from '~/components/wallets/button-collect-funds'
 import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
@@ -11,6 +12,8 @@ export function WalletsPage() {
 
   return (
     <>
+      <FormSettings />
+
       <div className="mb-4 flex items-center gap-2">
         <ButtonAddWallets />
 
