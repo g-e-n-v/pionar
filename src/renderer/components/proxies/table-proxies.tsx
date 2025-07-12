@@ -3,8 +3,11 @@ import { groupBy } from 'lodash-es'
 
 import { useGetProxies } from '~/api/use-get-proxies'
 import { TagProxyStatus } from '~/components/tags/tag-proxy-status'
+import { useListenProxyStatus } from '~/events/use-listen-proxy-status'
 
 export function TableProxies() {
+  useListenProxyStatus()
+
   const getProxies = useGetProxies()
 
   const proxies = groupBy(getProxies.data, 'status')

@@ -4,7 +4,6 @@ import { CloudConnection, Refresh2, Tag, Wallet } from 'iconsax-reactjs'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { useElectronListener } from '~/api/use-electron-listener'
 import { useResetDatabase } from '~/api/use-reset-database'
 import { antTheme } from '~/configs/ant.config'
 import { queryClient } from '~/configs/tanstack-query.config'
@@ -17,8 +16,6 @@ import '@ant-design/v5-patch-for-react-19'
 const { Content, Sider } = Layout
 
 export function ElectronApp() {
-  useElectronListener()
-
   const { modal, notification } = App.useApp()
 
   const resetDatabase = useResetDatabase()

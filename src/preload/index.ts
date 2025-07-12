@@ -1,5 +1,6 @@
 /* eslint-disable perfectionist/sort-objects */
 import { ProxyInsert, TagInsert, TagUpdate } from '#/types/db.type'
+import { IPCEvent } from '#/types/ipc-event.type'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge } from 'electron'
 import { ipcRenderer } from 'electron/renderer'
@@ -23,17 +24,23 @@ const api = {
 }
 
 /* ------------------------------ Events ------------------------------ */
-const createListener = (key: string) => (callback: (...args: unknown[]) => void) =>
-  ipcRenderer.on(key, (_, ...args) => callback(...args))
-
-const event = {
-  onFinishCheckProxy: createListener('check-proxy-finish')
-}
-
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('electron', Object.assign(electronAPI, event))
+    contextBridge.exposeInMainWorld(
+      'electron',
+      Object.assign(electronAPI, {
+        on: <T extends IPCEvent['type']>(
+          type: T,
+          callback: (event: Extract<IPCEvent, { type: T }>) => void
+        ) => {
+          const listener = (_event, value) => callback(value)
+          ipcRenderer.on(type, listener)
+
+          return () => ipcRenderer.removeListener(type, listener)
+        }
+      })
+    )
   } catch (error) {
     console.error(error)
   }

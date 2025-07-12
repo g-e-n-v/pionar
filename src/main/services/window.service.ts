@@ -1,3 +1,4 @@
+import { IPCEvent } from '#/types/ipc-event.type'
 import { is } from '@electron-toolkit/utils'
 import { BrowserWindow } from 'electron/main'
 import { join } from 'path'
@@ -32,3 +33,10 @@ export function createWindow() {
 }
 
 export const getWindow = () => state.window
+
+export function sendEvent<T extends IPCEvent['type']>(
+  type: T,
+  data: Extract<IPCEvent, { type: T }>['data']
+) {
+  state.window?.webContents.send(type, data)
+}

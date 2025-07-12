@@ -3,6 +3,7 @@ import { resetDatabase } from '#/database'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { addWallets, getWallets, refreshWallets } from '#/handlers/wallets.handler'
+import { IPCEvent } from '#/types/ipc-event.type'
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 type Fn<Input, Output = void> = (args: Input) => Output
@@ -27,7 +28,10 @@ declare global {
       refreshWallets: typeof refreshWallets
     }
     electron: ElectronAPI & {
-      onFinishCheckProxy: (callback: Fn<{ id: number; status: string }>) => void
+      on: <T extends IPCEvent['type']>(
+        type: T,
+        fn: (data: Extract<IPCEvent, { type: T }>['data']) => void
+      ) => () => void
     }
   }
 }
