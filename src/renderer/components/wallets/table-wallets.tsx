@@ -45,10 +45,6 @@ export function TableWallets() {
           dataIndex: 'availableBalance',
           title: 'Balance'
         },
-        {
-          dataIndex: 'nativeBalance',
-          title: 'Native Balance'
-        },
         { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' }
       ]}
       dataSource={getWallets.data}

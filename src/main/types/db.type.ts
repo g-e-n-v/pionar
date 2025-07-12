@@ -54,7 +54,7 @@ export type TagUpdate = Updateable<Tag>
 export type Wallet = BaseEntity<{
   error: null | string
   mnemonic: string
-  nativeBalance: Generated<number>
+  nativeBalance: null | number
   numSponsored: Generated<number>
   numSponsoring: Generated<number>
   privateKey: string

@@ -26,7 +26,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('subentryCount', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('numSponsoring', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('numSponsored', 'integer', (col) => col.notNull().defaultTo(0))
-    .addColumn('nativeBalance', 'integer', (col) => col.notNull().defaultTo(-1))
+    .addColumn('nativeBalance', 'integer')
     .addColumn('error', 'text')
     .execute()
 

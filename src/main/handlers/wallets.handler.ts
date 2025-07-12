@@ -3,7 +3,7 @@ import { api } from '#/services/api-client.service'
 import { getKeypair } from '#/services/stellar.service'
 import { LockInsert } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
-import { min, pick, round } from 'lodash-es'
+import { max, pick, round } from 'lodash-es'
 
 export async function addWallets(mnemonics: Array<string>) {
   for (const mnemonic of mnemonics) {
@@ -48,8 +48,7 @@ export async function getWallets() {
     const { nativeBalance, numSponsored, numSponsoring, subentryCount } = wallet
 
     const minReserve = (2 + subentryCount + numSponsoring - numSponsored) * BASE_REVERSE + 0.01
-    const availableBalance =
-      nativeBalance > 0 ? min([round(nativeBalance - minReserve, 7), 0]) : null
+    const availableBalance = nativeBalance && max([round(nativeBalance - minReserve, 7), 0])
 
     return { ...wallet, availableBalance }
   })
