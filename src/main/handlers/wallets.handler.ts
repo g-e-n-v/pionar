@@ -22,7 +22,8 @@ export async function addWallets(mnemonics: Array<string>) {
     await updateWallet(wallet.id, { proxy })
   })
 
-  queue.addAll(tasks)
+  await queue.addAll(tasks)
+  await queue.onIdle()
 }
 
 export async function getWallets() {
@@ -68,7 +69,8 @@ export async function refreshWallets(walletIds: Array<number>) {
     await updateWallet(walletId, { proxy })
   })
 
-  queue.addAll(tasks)
+  await queue.addAll(tasks)
+  await queue.onIdle()
 }
 
 async function updateWallet(

@@ -3,13 +3,14 @@ import { Table } from 'antd'
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
 import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
+import { useListenWalletStatus } from '~/events/use-listen-wallet-status'
 import { cn } from '~/utils/cn.util'
 import { formatDatetime } from '~/utils/date.util'
 
 export function TableWallets() {
-  const getWallets = useGetWallets()
+  useListenWalletStatus()
 
-  console.log(getWallets.data)
+  const getWallets = useGetWallets()
 
   return (
     <Table
