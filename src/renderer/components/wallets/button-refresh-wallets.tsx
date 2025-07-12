@@ -4,13 +4,13 @@ import { Refresh2 } from 'iconsax-reactjs'
 import { useRefreshWallets } from '~/api/use-refresh-wallets'
 
 type ButtonRefreshWalletsProps = ButtonProps & {
-  walletIds: Array<number>
+  walletIds?: Array<number>
 }
 
 export function ButtonRefreshWallets({
   disabled,
   loading,
-  walletIds,
+  walletIds = [],
   ...props
 }: ButtonRefreshWalletsProps) {
   const refreshWallets = useRefreshWallets()

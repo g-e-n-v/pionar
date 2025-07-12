@@ -116,7 +116,9 @@ async function updateWallet(
     const locks = getClaimants.data.embedded.records.reduce<LockInsert[]>((acc, record) => {
       const claimant = record.claimants.find((claimant) => claimant.destination === publicKey)
 
-      if (!claimant?.predicate.unconditional) return acc
+      console.log({ claimant })
+
+      if (claimant?.predicate.unconditional) return acc
 
       return [
         ...acc,
@@ -128,7 +130,10 @@ async function updateWallet(
       ]
     }, [])
 
-    locks.length && (await db.insertInto('lock').values(locks).execute())
+    if (locks.length) {
+      await db.insertInto('lock').values(locks).execute()
+      sendEvent('wallet:lock-count', { id: walletId, lockCount: locks.length })
+    }
   } catch (error) {
     console.log(String(error))
     await db.updateTable('wallet').set({ status: 'invalid' }).where('id', '=', walletId).execute()

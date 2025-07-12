@@ -3,12 +3,14 @@ import { Table } from 'antd'
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
 import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
+import { useListenWalletLockCount } from '~/events/use-listen-wallet-lock-count'
 import { useListenWalletStatus } from '~/events/use-listen-wallet-status'
 import { cn } from '~/utils/cn.util'
 import { formatDatetime } from '~/utils/date.util'
 
 export function TableWallets() {
   useListenWalletStatus()
+  useListenWalletLockCount()
 
   const getWallets = useGetWallets()
 
@@ -16,7 +18,7 @@ export function TableWallets() {
     <Table
       className="shadow rounded-lg overflow-hidden bg-white"
       columns={[
-        { dataIndex: 'walletId', title: '#', width: 60 },
+        { dataIndex: 'id', title: '#', width: 60 },
         {
           dataIndex: 'mnemonic',
           render: (text, { status }) => (
@@ -47,6 +49,7 @@ export function TableWallets() {
         },
         {
           dataIndex: 'availableBalance',
+          sorter: (a, b) => (a.availableBalance ?? 0) - (b.availableBalance ?? 0),
           title: 'Balance'
         },
         {
