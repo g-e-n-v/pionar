@@ -17,6 +17,9 @@ export function ButtonAddWallets() {
   const handleAddWallets = async () => {
     if (!inputValue) return
 
+    setOpen(false)
+    setInputValue('')
+
     const mnemonics = inputValue
       .split('\n')
       .filter(Boolean)
@@ -30,10 +33,6 @@ export function ButtonAddWallets() {
     await addWallets.mutateAsync(mnemonics)
 
     notification.success({ message: 'Add wallets successfully' })
-
-    setInputValue('')
-    setOpen(false)
-
     queryClient.invalidateQueries({ queryKey: genGetWalletsKey() })
   }
 
