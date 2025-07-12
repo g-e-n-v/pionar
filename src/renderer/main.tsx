@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { App, ConfigProvider, Divider, Layout, Menu, MenuProps, Spin } from 'antd'
-import { CloudConnection, Refresh, Tag, Wallet } from 'iconsax-reactjs'
+import { CloudConnection, Refresh2, Tag, Wallet } from 'iconsax-reactjs'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -73,7 +73,7 @@ export function ElectronApp() {
               icon: resetDatabase.isPending ? (
                 <Spin size="small" />
               ) : (
-                <Refresh size={16} variant="Bulk" />
+                <Refresh2 size={16} variant="Bulk" />
               ),
               key: 'reset-database',
               label: 'Reset database'

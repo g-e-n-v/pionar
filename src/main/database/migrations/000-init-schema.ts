@@ -28,6 +28,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('numSponsored', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('nativeBalance', 'integer')
     .addColumn('error', 'text')
+    .addColumn('status', 'text', (col) => col.notNull().defaultTo('not_started'))
     .execute()
 
   await createTableWithBaseColumns(db, 'junctionWalletTag')

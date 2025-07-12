@@ -1,29 +1,27 @@
 import { db } from '#/database'
-import { api } from '#/services/api-client.service'
+import { upsert } from '#/database/utils/upsert.db'
+import { getProxies } from '#/handlers/proxies.handler'
+import { createAPIClient } from '#/services/api-client.service'
+import { createPromiseQueue } from '#/services/promise-queue.service'
 import { getKeypair } from '#/services/stellar.service'
-import { LockInsert } from '#/types/db.type'
+import { LockInsert, Proxy, WalletUpdate } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
 import { max, pick, round } from 'lodash-es'
 
 export async function addWallets(mnemonics: Array<string>) {
-  for (const mnemonic of mnemonics) {
+  const proxies = await getProxies()
+  const queue = createPromiseQueue({ concurrency: 100 })
+
+  const tasks = mnemonics.map((mnemonic, idx) => async () => {
     const { privateKey, publicKey } = getKeypair(mnemonic)
+    const proxy = proxies[idx % proxies.length]
 
-    await db
-      .insertInto('wallet')
-      .values({ mnemonic, privateKey, publicKey })
-      .onConflict((builder) => builder.doNothing())
-      .execute()
+    const wallet = await upsert('wallet', { mnemonic, privateKey, publicKey }, 'mnemonic')
 
-    const walletId = await db
-      .selectFrom('wallet')
-      .select('id')
-      .where('publicKey', '=', publicKey)
-      .executeTakeFirstOrThrow()
-      .then((rs) => rs.id)
+    await updateWallet(wallet.id, { proxy })
+  })
 
-    await updateWallet(walletId, { publicKey })
-  }
+  queue.addAll(tasks)
 }
 
 export async function getWallets() {
@@ -56,16 +54,39 @@ export async function getWallets() {
   return wallets
 }
 
-export async function updateWallet(walletId: number, args: { publicKey?: string }) {
-  const {
-    publicKey = await db
-      .selectFrom('wallet')
-      .select('publicKey')
-      .where('id', '=', walletId)
-      .executeTakeFirstOrThrow()
-  } = args
+export async function refreshWallets(walletIds: Array<number>) {
+  const proxies = await getProxies()
+  const queue = createPromiseQueue({ concurrency: 100 })
+
+  const tasks = walletIds.map((walletId) => async () => {
+    const proxy = proxies[walletId % proxies.length]
+    await updateWallet(walletId, { proxy })
+  })
+
+  queue.addAll(tasks)
+}
+
+async function updateWallet(
+  walletId: number,
+  options: { proxy?: Pick<Proxy, 'host' | 'password' | 'port' | 'username'> } = {}
+) {
+  const { proxy } = options
+
+  await db
+    .updateTable('wallet')
+    .set({ status: 'processing' })
+    .where('id', '=', walletId)
+    .executeTakeFirst()
+
+  const { publicKey } = await db
+    .selectFrom('wallet')
+    .select('publicKey')
+    .where('id', '=', walletId)
+    .executeTakeFirstOrThrow()
 
   try {
+    const api = createAPIClient({ proxy })
+
     const getAccount = await api.get<AccountResponse>(
       `https://horizon.piscan.io/accounts/${publicKey}`
     )
@@ -76,9 +97,10 @@ export async function updateWallet(walletId: number, args: { publicKey?: string 
       getAccount.data.balances.find((item) => item.assetType === 'native')?.balance ?? -1
     )
 
-    const wallet = {
+    const wallet: WalletUpdate = {
       ...pick(getAccount.data, ['subentryCount', 'numSponsored', 'numSponsoring']),
-      nativeBalance
+      nativeBalance,
+      status: 'valid'
     }
     await db.updateTable('wallet').set(wallet).where('id', '=', walletId).execute()
 
@@ -100,5 +122,6 @@ export async function updateWallet(walletId: number, args: { publicKey?: string 
     locks.length && (await db.insertInto('lock').values(locks).execute())
   } catch (error) {
     console.log(String(error))
+    await db.updateTable('wallet').set({ status: 'invalid' }).where('id', '=', walletId).execute()
   }
 }

@@ -59,6 +59,7 @@ export type Wallet = BaseEntity<{
   numSponsoring: Generated<number>
   privateKey: string
   publicKey: string
+  status: Generated<'invalid' | 'not_started' | 'processing' | 'valid'>
   subentryCount: Generated<number>
 }>
 export type WalletInsert = Insertable<Wallet>

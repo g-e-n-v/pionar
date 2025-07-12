@@ -3,13 +3,12 @@ import { isNil } from 'lodash-es'
 
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
+import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
 import { cn } from '~/utils/cn.util'
 import { formatDatetime } from '~/utils/date.util'
 
 export function TableWallets() {
   const getWallets = useGetWallets()
-
-  console.log(getWallets.data)
 
   return (
     <Table
@@ -45,7 +44,16 @@ export function TableWallets() {
           dataIndex: 'availableBalance',
           title: 'Balance'
         },
-        { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' }
+        { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' },
+        {
+          fixed: 'right',
+          render: (_, { walletId }) => (
+            <>
+              <ButtonRefreshWallets walletIds={[walletId]} />
+            </>
+          ),
+          title: 'Action'
+        }
       ]}
       dataSource={getWallets.data}
       pagination={{ className: 'px-4' }}
