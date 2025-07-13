@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { useAddWallets } from '~/api/use-add-wallets'
 import { genGetWalletsKey } from '~/api/use-get-wallets'
+import { SelectTags } from '~/components/select/select-tags'
 import { queryClient } from '~/configs/tanstack-query.config'
 
 export function ButtonAddWallets() {
@@ -11,6 +12,7 @@ export function ButtonAddWallets() {
 
   const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState<string>()
+  const [tags, setTags] = useState<Array<number>>([])
 
   const addWallets = useAddWallets()
 
@@ -55,7 +57,8 @@ export function ButtonAddWallets() {
         title="Add wallets"
         width="80vw"
       >
-        <div className="mb-6">Each mnemonic phrase is on a line.</div>
+        <SelectTags className="w-full mb-4" onChange={setTags} value={tags} />
+        <div className="mb-2">Each mnemonic phrase is on a line.</div>
         <Input.TextArea
           autoSize={{ maxRows: 12, minRows: 4 }}
           className="text-nowrap"
