@@ -47,6 +47,7 @@ export function TableWallets() {
               </Text>
             </div>
           ),
+          sorter: (a, b) => a.status.localeCompare(b.status),
           title: 'Mnemonic'
         },
         {
@@ -65,7 +66,7 @@ export function TableWallets() {
         },
         {
           dataIndex: 'lockCount',
-          sorter: true,
+          sorter: (a, b) => Number(a.lockCount) - Number(b.lockCount),
           title: 'Lock Count'
         },
         { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' },
