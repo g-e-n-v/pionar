@@ -31,8 +31,8 @@ export async function addWallets(mnemonics: Array<string>) {
 
 export async function collectFunds(receiver: string) {
   const wallets = (await getWallets()).filter((wallet) => {
-    const amount = (wallet.availableBalance ?? 0) - 0.01
-    return amount > 0.01 && wallet.publicKey !== receiver
+    const amount = wallet.availableBalance ?? 0
+    return amount > 0 && wallet.publicKey !== receiver
   })
   const proxies = await getProxies()
   const queue = createPromiseQueue({ concurrency: 500 })
@@ -45,8 +45,6 @@ export async function collectFunds(receiver: string) {
       useCaseMiddleware: false
     })
 
-    const amount = (wallet.availableBalance ?? 0) - 0.01
-
     try {
       const account = await loadAccount({ client: api, publicKey: wallet.publicKey })
 
@@ -56,7 +54,7 @@ export async function collectFunds(receiver: string) {
       })
         .addOperation(
           Operation.payment({
-            amount: amount.toFixed(7),
+            amount: (wallet.availableBalance ?? 0).toFixed(7),
             asset: Asset.native(),
             destination: receiver
           })
@@ -70,6 +68,8 @@ export async function collectFunds(receiver: string) {
 
       const hash = get(data, 'hash')
       hash ? console.log(hash) : console.log(JSON.stringify(data))
+
+      updateWallet(wallet.id, { proxy })
     } catch (error) {
       console.trace(error)
     }
@@ -77,8 +77,6 @@ export async function collectFunds(receiver: string) {
 
   await queue.addAll(tasks)
   await queue.onIdle()
-
-  await refreshWallets(wallets.map((wallet) => wallet.id))
 }
 
 export async function getWallets() {
@@ -177,6 +175,7 @@ async function updateWallet(
         ...acc,
         {
           amount: Number(record.amount),
+          balanceId: record.id,
           unlockAt: claimant?.predicate.not?.absBefore ?? '',
           walletId
         }
@@ -184,7 +183,11 @@ async function updateWallet(
     }, [])
 
     if (locks.length) {
-      await db.insertInto('lock').values(locks).execute()
+      await db
+        .insertInto('lock')
+        .values(locks)
+        .onConflict((oc) => oc.doNothing())
+        .execute()
       sendEvent('wallet:lock-count', { id: walletId, lockCount: locks.length })
     }
   } catch (error) {

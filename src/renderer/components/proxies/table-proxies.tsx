@@ -2,7 +2,7 @@ import { Input, Table } from 'antd'
 import { groupBy } from 'lodash-es'
 
 import { useGetProxies } from '~/api/use-get-proxies'
-import { TagProxyStatus } from '~/components/tags/tag-proxy-status'
+import { TagProxyStatus } from '~/components/proxies/tag-proxy-status'
 import { useListenProxyStatus } from '~/events/use-listen-proxy-status'
 
 export function TableProxies() {
@@ -41,7 +41,6 @@ export function TableProxies() {
       scroll={{ y: 'calc(100vh - 280px)' }}
       title={() => (
         <div className="flex items-center gap-2">
-          <span className="font-medium">Summary:</span>
           {Object.entries(proxies).map(([status, proxies]) => (
             <TagProxyStatus key={status} status={status} total={proxies.length} />
           ))}

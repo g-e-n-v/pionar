@@ -1,5 +1,6 @@
-import { Table } from 'antd'
-import { groupBy } from 'lodash-es'
+import { Divider, Table, Tag } from 'antd'
+import { Lock1, Wallet } from 'iconsax-reactjs'
+import { groupBy, sumBy } from 'lodash-es'
 
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
@@ -17,6 +18,12 @@ export function TableWallets() {
   const getWallets = useGetWallets()
 
   const wallets = groupBy(getWallets.data, 'status')
+
+  const totalWalletHasLock = getWallets.data?.filter(
+    (wallet) => Number(wallet.lockCount) > 0
+  ).length
+
+  const totalLock = sumBy(getWallets.data, (w) => Number(w.lockCount))
 
   return (
     <Table
@@ -77,11 +84,22 @@ export function TableWallets() {
       rowKey={(record) => record.id}
       scroll={{ x: 'max-content' }}
       title={() => (
-        <div className="flex items-center gap-2">
-          <span className="font-medium">Summary:</span>
+        <div className="flex items-center">
           {Object.entries(wallets).map(([status, wallets]) => (
             <TagWalletStatus key={status} status={status} total={wallets.length} />
           ))}
+
+          <Divider type="vertical" />
+
+          <Tag className="flex items-center gap-1" color="geekblue">
+            <Wallet size={14} variant="Bulk" />
+            {totalWalletHasLock}
+          </Tag>
+
+          <Tag className="flex items-center gap-1" color="blue">
+            <Lock1 size={14} variant="Bulk" />
+            {totalLock}
+          </Tag>
         </div>
       )}
     />

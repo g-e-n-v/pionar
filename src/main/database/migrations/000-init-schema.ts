@@ -40,6 +40,7 @@ async function up(db: Kysely<DatabaseTables>) {
     .addColumn('amount', 'integer', (col) => col.notNull())
     .addColumn('unlockAt', 'datetime', (col) => col.notNull())
     .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
+    .addColumn('balanceId', 'text', (col) => col.notNull().unique())
     .execute()
 }
 
