@@ -74,7 +74,7 @@ export function TableWallets() {
           fixed: 'right',
           render: (_, { id, status }) => (
             <>
-              <ButtonRefreshWallets disabled={status === 'processing'} walletIds={[id]} />
+              <ButtonRefreshWallets disabled={status === 'processing'} walletId={id} />
             </>
           ),
           title: 'Action'

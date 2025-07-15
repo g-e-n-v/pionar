@@ -6,6 +6,8 @@ export type IPCEvent =
   | Event<'wallet:lock-count', { id: number; lockCount: number }>
   | Event<'wallet:status', { id: number; status: WalletSelect['status'] }>
 
+export type IPCInput<T extends IPCEvent['type']> = Extract<IPCEvent, { type: T }>['data']
+
 type Event<T extends string, D = undefined> = {
   data: D
   type: T
