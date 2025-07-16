@@ -7,7 +7,7 @@ export type TextProps = Parameters<typeof Typography.Text>[0] & {
 }
 
 export function Text({ children, copyable, ellipsisMiddle, ...props }: TextProps) {
-  const ellipsisMiddleText = `${children.slice(0, 10)}...${children.slice(-10).trim()}`
+  const ellipsisMiddleText = `${children?.slice(0, 10)}...${children?.slice(-10).trim()}`
 
   const handleCopyText = () => window.navigator.clipboard.writeText(children)
 

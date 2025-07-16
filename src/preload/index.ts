@@ -21,7 +21,9 @@ const api = {
   addWallets: (mnemonics: Array<string>) => ipcRenderer.invoke('add-wallets', mnemonics),
   getWallets: () => ipcRenderer.invoke('get-wallets'),
   refreshWallets: (walletIds: Array<number>) => ipcRenderer.invoke('refresh-wallets', walletIds),
-  collectFunds: (receiver: string) => ipcRenderer.invoke('collect-funds', receiver)
+  collectFunds: (receiver: string) => ipcRenderer.invoke('collect-funds', receiver),
+
+  getLocks: () => ipcRenderer.invoke('get-locks')
 }
 
 /* ------------------------------ Events ------------------------------ */

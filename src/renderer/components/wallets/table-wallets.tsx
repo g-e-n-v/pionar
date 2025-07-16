@@ -30,9 +30,10 @@ export function TableWallets() {
     <Table
       className="shadow rounded-lg overflow-hidden bg-white"
       columns={[
-        { dataIndex: 'id', title: '#', width: 60 },
+        { dataIndex: 'id', fixed: 'left', title: '#', width: 60 },
         {
           dataIndex: 'mnemonic',
+          fixed: 'left',
           render: (text, { status }) => (
             <div className="flex items-center gap-2">
               <div
@@ -63,12 +64,14 @@ export function TableWallets() {
         {
           dataIndex: 'availableBalance',
           sorter: (a, b) => (a.availableBalance ?? 0) - (b.availableBalance ?? 0),
-          title: 'Balance'
+          title: 'Balance',
+          width: 120
         },
         {
           dataIndex: 'lockCount',
           sorter: (a, b) => Number(a.lockCount) - Number(b.lockCount),
-          title: 'Lock Count'
+          title: 'Lock count',
+          width: 140
         },
         {
           dataIndex: 'updatedAt',
@@ -83,13 +86,14 @@ export function TableWallets() {
               <ButtonRefreshWallets disabled={status === 'processing'} walletId={id} />
             </>
           ),
-          title: 'Action'
+          title: 'Action',
+          width: 160
         }
       ]}
       dataSource={getWallets.data}
-      pagination={{ className: 'px-4' }}
+      pagination={{ className: 'px-4', defaultPageSize: 20 }}
       rowKey={(record) => record.id}
-      scroll={{ x: 'max-content' }}
+      scroll={{ x: 'max-content', y: 'calc(100vh - 360px)' }}
       title={() => (
         <div className="flex items-center">
           {Object.entries(wallets).map(([status, wallets]) => (

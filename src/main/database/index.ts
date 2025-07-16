@@ -9,8 +9,8 @@ sqlite.pragma('foreign_keys = ON')
 
 export const db = new Kysely<DatabaseTables>({
   dialect: new SqliteDialect({ database: sqlite }),
-  // log: ['error', 'query']
-  log: ['error']
+  log: ['error', 'query']
+  // log: ['error']
 })
 
 export const migrator = new Migrator({

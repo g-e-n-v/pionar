@@ -1,17 +1,27 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { App, ConfigProvider, Divider, Layout, Menu, MenuProps, Spin } from 'antd'
-import { CloudConnection, Refresh2, Tag, Wallet } from 'iconsax-reactjs'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
+import { CloudConnection, Refresh2, Tag, Unlock, Wallet } from 'iconsax-reactjs'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { useResetDatabase } from '~/api/use-reset-database'
 import { antTheme } from '~/configs/ant.config'
 import { queryClient } from '~/configs/tanstack-query.config'
+import { LockPage } from '~/pages/lock.page'
 import { ProxyPage } from '~/pages/proxy.page'
-import { TagPage } from '~/pages/tag.page'
-import { WalletsPage } from '~/pages/wallets.page'
 import '~/global.css'
 import '@ant-design/v5-patch-for-react-19'
+
+import { TagPage } from '~/pages/tag.page'
+import { WalletsPage } from '~/pages/wallets.page'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(customParseFormat)
 
 const { Content, Sider } = Layout
 
@@ -52,6 +62,11 @@ export function ElectronApp() {
               label: 'Wallets'
             },
             {
+              icon: <Unlock size={16} variant="Bulk" />,
+              key: 'lock',
+              label: 'Locks'
+            },
+            {
               icon: <CloudConnection size={16} variant="Bulk" />,
               key: 'proxy',
               label: 'Proxy'
@@ -84,6 +99,7 @@ export function ElectronApp() {
       <Layout>
         <Content className="p-4">
           {selectedKey === 'tag' && <TagPage />}
+          {selectedKey === 'lock' && <LockPage />}
           {selectedKey === 'wallet' && <WalletsPage />}
           {selectedKey === 'proxy' && <ProxyPage />}
         </Content>
