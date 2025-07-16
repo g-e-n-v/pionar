@@ -56,10 +56,29 @@ export const migration_000_init_schema = { down, up }
 
 // -------------------
 function createTableWithBaseColumns(db: Kysely<DatabaseTables>, tableName: string) {
-  return db.schema
+  const builder = db.schema
     .createTable(tableName)
     .addColumn('id', 'integer', (col) => col.primaryKey())
     .addColumn('createdAt', 'datetime', (col) => col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`))
-    .addColumn('updatedAt', 'datetime', (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-    .addColumn('deletedAt', 'datetime', (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+    .addColumn('updatedAt', 'datetime', (col) => col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`))
+    .addColumn('deletedAt', 'datetime')
+
+  const originalExecute = builder.execute.bind(builder)
+
+  builder.execute = async () => {
+    await originalExecute()
+
+    await sql`
+      CREATE TRIGGER update_${sql.raw(tableName)}_updatedAt
+      AFTER UPDATE ON ${sql.raw(tableName)}
+      FOR EACH ROW
+      BEGIN
+        UPDATE ${sql.raw(tableName)}
+        SET updatedAt = CURRENT_TIMESTAMP
+        WHERE id = OLD.id;
+      END;
+    `.execute(db)
+  }
+
+  return builder
 }

@@ -25,14 +25,14 @@ export function ButtonRefreshWallets({
         break
       }
 
-      case 'invalid': {
-        const ids = getWallets.data?.filter((w) => w.status === 'valid')?.map((w) => w.id)
+      case 'invalid-wallet': {
+        const ids = getWallets.data?.filter((w) => w.status === 'invalid')?.map((w) => w.id)
         ids && (await refreshWallets.mutateAsync(ids))
         break
       }
 
-      case 'invalid-wallet': {
-        const ids = getWallets.data?.filter((w) => w.status === 'invalid')?.map((w) => w.id)
+      case 'valid-wallet': {
+        const ids = getWallets.data?.filter((w) => w.status === 'valid')?.map((w) => w.id)
         ids && (await refreshWallets.mutateAsync(ids))
         break
       }

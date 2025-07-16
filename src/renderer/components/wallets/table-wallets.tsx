@@ -1,4 +1,5 @@
 import { Divider, Table, Tag } from 'antd'
+import dayjs from 'dayjs'
 import { Lock1, Wallet } from 'iconsax-reactjs'
 import { groupBy, sumBy } from 'lodash-es'
 
@@ -69,7 +70,12 @@ export function TableWallets() {
           sorter: (a, b) => Number(a.lockCount) - Number(b.lockCount),
           title: 'Lock Count'
         },
-        { dataIndex: 'walletUpdatedAt', render: formatDatetime, title: 'Last update' },
+        {
+          dataIndex: 'updatedAt',
+          render: formatDatetime,
+          sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+          title: 'Last update'
+        },
         {
           fixed: 'right',
           render: (_, { id, status }) => (
