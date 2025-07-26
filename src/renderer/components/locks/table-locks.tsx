@@ -2,8 +2,8 @@ import { Table, Tag } from 'antd'
 import dayjs from 'dayjs'
 
 import { useGetLocks } from '~/api/use-get-locks'
+import { ButtonRefreshLock } from '~/components/locks/button-refresh-lock'
 import { Text } from '~/components/typography/text'
-import { ButtonRefreshWallets } from '~/components/wallets/button-refresh-wallets'
 import { cn } from '~/utils/cn.util'
 import { formatDatetime } from '~/utils/date.util'
 
@@ -17,6 +17,28 @@ export function TableLocks() {
       className="shadow rounded-lg overflow-hidden bg-white"
       columns={[
         { dataIndex: 'id', fixed: 'left', title: '#', width: 60 },
+        {
+          dataIndex: 'unlockAt',
+          render: formatDatetime,
+          sorter: (a, b) => dayjs(a.unlockAt).diff(dayjs(b.unlockAt)),
+          title: 'Unlock At'
+        },
+        {
+          dataIndex: 'amount',
+          render: (value, record) => (
+            <span
+              className={cn(
+                'text-red-500',
+                { 'text-green-500': dayjs(record.unlockAt).isBefore(dayjs()) },
+                { 'line-through text-gray-500': !!record.isClaimed }
+              )}
+            >
+              {value}
+            </span>
+          ),
+          sorter: (a, b) => a.amount - b.amount,
+          title: 'Amount'
+        },
         {
           dataIndex: 'mnemonic',
           render: (text) => (
@@ -37,32 +59,13 @@ export function TableLocks() {
           title: 'Address'
         },
         {
-          dataIndex: 'amount',
-          render: (value, record) => (
-            <span
-              className={cn('text-red-500', {
-                'text-green-500': dayjs(record.unlockAt).isBefore(dayjs())
-              })}
-            >
-              {value}
-            </span>
-          ),
-          sorter: (a, b) => a.amount - b.amount,
-          title: 'Amount'
-        },
-        {
-          dataIndex: 'unlockAt',
-          render: formatDatetime,
-          sorter: (a, b) => dayjs(a.unlockAt).diff(dayjs(b.unlockAt)),
-          title: 'Unlock At'
-        },
-        {
-          render: (_, { id, status }) => (
+          render: (_, { id }) => (
             <>
-              <ButtonRefreshWallets disabled={status === 'processing'} walletId={id} />
+              <ButtonRefreshLock lockId={id} />
             </>
           ),
-          title: 'Actions'
+          title: 'Actions',
+          width: 100
         }
       ]}
       dataSource={getLocks.data}

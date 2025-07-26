@@ -1,6 +1,6 @@
 /* eslint-disable perfectionist/sort-object-types */
 import { resetDatabase } from '#/database'
-import { getLocks } from '#/handlers/locks.hanlder'
+import { getLocks, refreshLock } from '#/handlers/locks.hanlder'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { addWallets, collectFunds, getWallets, refreshWallets } from '#/handlers/wallets.handler'
@@ -30,6 +30,7 @@ declare global {
       collectFunds: typeof collectFunds
 
       getLocks: typeof getLocks
+      refreshLock: typeof refreshLock
     }
     electron: ElectronAPI & {
       on: <T extends IPCEvent['type']>(

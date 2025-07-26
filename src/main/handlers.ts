@@ -1,5 +1,5 @@
 import { resetDatabase } from '#/database'
-import { getLocks } from '#/handlers/locks.hanlder'
+import { getLocks, refreshLock } from '#/handlers/locks.hanlder'
 import { addProxies, deleteProxies, getProxies, verifyProxies } from '#/handlers/proxies.handler'
 import { addTag, deleteTag, getTags, updateTag } from '#/handlers/tags.handler'
 import { addWallets, collectFunds, getWallets, refreshWallets } from '#/handlers/wallets.handler'
@@ -25,4 +25,5 @@ export function registerIpcHandlers() {
   ipcMain.handle('collect-funds', (_, receiver) => collectFunds(receiver))
 
   ipcMain.handle('get-locks', () => getLocks())
+  ipcMain.handle('refresh-lock', (_, lockId: number) => refreshLock(lockId))
 }

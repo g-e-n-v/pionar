@@ -23,7 +23,8 @@ const api = {
   refreshWallets: (walletIds: Array<number>) => ipcRenderer.invoke('refresh-wallets', walletIds),
   collectFunds: (receiver: string) => ipcRenderer.invoke('collect-funds', receiver),
 
-  getLocks: () => ipcRenderer.invoke('get-locks')
+  getLocks: () => ipcRenderer.invoke('get-locks'),
+  refreshLock: (balanceId: string) => ipcRenderer.invoke('refresh-lock', balanceId)
 }
 
 /* ------------------------------ Events ------------------------------ */

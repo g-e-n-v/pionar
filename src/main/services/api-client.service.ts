@@ -8,11 +8,13 @@ const applyCaseMiddleware = get(caseConverter, 'default') as unknown as ApplyCas
 
 export const api = applyCaseMiddleware(axios.create())
 
-export function createAPIClient(args: {
-  baseURL?: string
-  proxy?: Pick<Proxy, 'host' | 'password' | 'port' | 'username'>
-  useCaseMiddleware?: boolean
-}) {
+export function createAPIClient(
+  args: {
+    baseURL?: string
+    proxy?: Pick<Proxy, 'host' | 'password' | 'port' | 'username'>
+    useCaseMiddleware?: boolean
+  } = {}
+) {
   const { baseURL, proxy: { host, password, port, username } = {}, useCaseMiddleware = true } = args
   const agent = host
     ? new HttpsProxyAgent(`http://${username}:${password}@${host}:${port}`)

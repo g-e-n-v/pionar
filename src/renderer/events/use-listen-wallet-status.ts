@@ -9,7 +9,6 @@ export function useListenWalletStatus() {
   const updateWalletStatus = useRef(
     throttle(
       () => {
-        console.log('fetch')
         const queryKey = genGetWalletsKey()
         queryClient.refetchQueries({ queryKey })
       },

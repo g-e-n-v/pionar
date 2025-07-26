@@ -25,7 +25,7 @@ export type JunctionWalletTagUpdate = Updateable<JunctionWalletTag>
 export type Lock = BaseEntity<{
   amount: number
   balanceId: string
-  isClaimed: boolean
+  isClaimed: Generated<0 | 1>
   unlockAt: string
   walletId: number
 }>
