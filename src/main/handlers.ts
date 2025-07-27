@@ -19,7 +19,7 @@ export function registerIpcHandlers() {
   ipcMain.handle('verify-proxies', (_, url: string) => verifyProxies(url))
   ipcMain.handle('delete-proxies', () => deleteProxies())
 
-  ipcMain.handle('add-wallets', (_, mnemonics: Array<string>) => addWallets(mnemonics))
+  ipcMain.handle('add-wallets', (_, args) => addWallets(args))
   ipcMain.handle('get-wallets', () => getWallets())
   ipcMain.handle('refresh-wallets', (_, walletIds: Array<number>) => refreshWallets(walletIds))
   ipcMain.handle('collect-funds', (_, receiver) => collectFunds(receiver))

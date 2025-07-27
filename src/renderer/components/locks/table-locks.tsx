@@ -30,7 +30,7 @@ export function TableLocks() {
               className={cn(
                 'text-red-500',
                 { 'text-green-500': dayjs(record.unlockAt).isBefore(dayjs()) },
-                { 'line-through text-gray-500': !!record.isClaimed }
+                { 'line-through text-gray-400': !!record.isClaimed }
               )}
             >
               {value}

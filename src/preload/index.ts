@@ -18,7 +18,7 @@ const api = {
   verifyProxies: (url: string) => ipcRenderer.invoke('verify-proxies', url),
   deleteProxies: () => ipcRenderer.invoke('delete-proxies'),
 
-  addWallets: (mnemonics: Array<string>) => ipcRenderer.invoke('add-wallets', mnemonics),
+  addWallets: (args) => ipcRenderer.invoke('add-wallets', args),
   getWallets: () => ipcRenderer.invoke('get-wallets'),
   refreshWallets: (walletIds: Array<number>) => ipcRenderer.invoke('refresh-wallets', walletIds),
   collectFunds: (receiver: string) => ipcRenderer.invoke('collect-funds', receiver),

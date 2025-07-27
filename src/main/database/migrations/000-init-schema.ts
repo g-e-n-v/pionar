@@ -34,6 +34,7 @@ async function up(db: Kysely<DatabaseTables>) {
   await createTableWithBaseColumns(db, 'junctionWalletTag')
     .addColumn('tagId', 'integer', (col) => col.references('tag.id').onDelete('cascade'))
     .addColumn('walletId', 'integer', (col) => col.references('wallet.id').onDelete('cascade'))
+    .addUniqueConstraint('unique_junctionWalletTag', ['tagId', 'walletId'])
     .execute()
 
   await createTableWithBaseColumns(db, 'lock')

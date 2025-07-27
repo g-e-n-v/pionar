@@ -5,14 +5,17 @@ import { createAPIClient } from '#/services/api-client.service'
 import { createPromiseQueue } from '#/services/promise-queue.service'
 import { getKeypair, loadAccount } from '#/services/stellar.service'
 import { sendEvent } from '#/services/window.service'
-import { LockInsert, Proxy, WalletUpdate } from '#/types/db.type'
+import { LockInsert, Proxy, TagSelect, WalletUpdate } from '#/types/db.type'
 import { AccountResponse, ClaimantResponse } from '#/types/horizon.type'
 import { Asset, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
+import { sql } from 'kysely'
 import { get, max, pick, round } from 'lodash-es'
 
 const BASE_FEE = 1_00000 // 0.01 π
 
-export async function addWallets(mnemonics: Array<string>) {
+export async function addWallets(args: { mnemonics: Array<string>; tagIds: Array<number> }) {
+  const { mnemonics, tagIds } = args
+
   const proxies = await getProxies()
   const queue = createPromiseQueue({ concurrency: 100 })
 
@@ -22,6 +25,10 @@ export async function addWallets(mnemonics: Array<string>) {
 
     const wallet = await upsert('wallet', { mnemonic, privateKey, publicKey }, 'mnemonic')
 
+    await db
+      .insertInto('junctionWalletTag')
+      .values(tagIds.map((tagId) => ({ tagId, walletId: wallet.id })))
+      .execute()
     await updateWallet(wallet.id, { proxy })
   })
 
@@ -85,6 +92,8 @@ export async function getWallets() {
   const rawWallets = await db
     .selectFrom('wallet')
     .leftJoin('lock', 'lock.walletId', 'wallet.id')
+    .leftJoin('junctionWalletTag', 'junctionWalletTag.walletId', 'wallet.id')
+    .leftJoin('tag', 'tag.id', 'junctionWalletTag.tagId')
     .select([
       'wallet.id as id',
       'wallet.mnemonic as mnemonic',
@@ -96,7 +105,17 @@ export async function getWallets() {
       'wallet.privateKey as privateKey',
       'wallet.updatedAt as updatedAt',
       'wallet.status as status',
-      db.fn.count('lock.id').as('lockCount')
+      db.fn.count('lock.id').as('lockCount'),
+      sql<string>`
+        COALESCE(
+          json_group_array(
+            DISTINCT json_object(
+              'text', tag.text,
+              'color', tag.color
+            )
+          ), '[]'
+        )
+      `.as('tags')
     ])
     .groupBy('wallet.id')
     .execute()
@@ -107,7 +126,9 @@ export async function getWallets() {
     const minReserve = (2 + subentryCount + numSponsoring - numSponsored) * BASE_REVERSE + 0.01
     const availableBalance = nativeBalance && max([round(nativeBalance - minReserve, 7), 0])
 
-    return { ...wallet, availableBalance }
+    const tags = JSON.parse(wallet.tags ?? '[]') as Array<Pick<TagSelect, 'color' | 'text'>>
+
+    return { ...wallet, availableBalance, tags }
   })
 
   return wallets

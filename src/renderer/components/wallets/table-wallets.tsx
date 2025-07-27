@@ -1,7 +1,9 @@
-import { Divider, Table, Tag } from 'antd'
+import { TagSelect } from '#/types/db.type'
+import { Divider, Input, Table, Tag } from 'antd'
 import dayjs from 'dayjs'
-import { Lock1, Wallet } from 'iconsax-reactjs'
+import { Lock1, SearchNormal1, Wallet } from 'iconsax-reactjs'
 import { groupBy, sumBy } from 'lodash-es'
+import { useState } from 'react'
 
 import { useGetWallets } from '~/api/use-get-wallets'
 import { Text } from '~/components/typography/text'
@@ -16,6 +18,8 @@ export function TableWallets() {
   useListenWalletStatus()
   useListenWalletLockCount()
 
+  const [search, setSearch] = useState<string>()
+
   const getWallets = useGetWallets()
 
   const wallets = groupBy(getWallets.data, 'status')
@@ -25,6 +29,12 @@ export function TableWallets() {
   ).length
 
   const totalLock = sumBy(getWallets.data, (w) => Number(w.lockCount))
+
+  const displayWallets = getWallets.data?.filter((wallet) => {
+    if (!search) return true
+
+    return wallet.mnemonic.includes(search) || wallet.publicKey.includes(search)
+  })
 
   return (
     <Table
@@ -74,6 +84,17 @@ export function TableWallets() {
           width: 140
         },
         {
+          dataIndex: 'tags',
+          render: (tags: Array<Pick<TagSelect, 'color' | 'text'>>) =>
+            tags.map((tag) => (
+              <Tag color={tag.color ?? undefined} key={tag.text}>
+                {tag.text}
+              </Tag>
+            )),
+          title: 'Tags',
+          width: 140
+        },
+        {
           dataIndex: 'updatedAt',
           render: formatDatetime,
           sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
@@ -90,7 +111,7 @@ export function TableWallets() {
           width: 160
         }
       ]}
-      dataSource={getWallets.data}
+      dataSource={displayWallets}
       pagination={{ className: 'px-4', defaultPageSize: 20 }}
       rowKey={(record) => record.id}
       scroll={{ x: 'max-content', y: 'calc(100vh - 360px)' }}
@@ -111,6 +132,16 @@ export function TableWallets() {
             <Lock1 size={14} variant="Bulk" />
             {totalLock}
           </Tag>
+
+          <div className="grow" />
+
+          <Input
+            className="w-1/3"
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search"
+            suffix={<SearchNormal1 className="text-gray-400" size={16} />}
+            value={search}
+          />
         </div>
       )}
     />

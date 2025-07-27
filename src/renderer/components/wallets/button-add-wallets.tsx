@@ -32,7 +32,7 @@ export function ButtonAddWallets() {
           .replace(/[^a-z\s]/g, '')
           .replace(/\s+/g, ' ')
       )
-    await addWallets.mutateAsync(mnemonics)
+    await addWallets.mutateAsync({ mnemonics, tagIds: tags })
 
     notification.success({ message: 'Add wallets successfully' })
     queryClient.invalidateQueries({ queryKey: genGetWalletsKey() })
